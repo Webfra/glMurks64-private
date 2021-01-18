@@ -13,8 +13,10 @@ namespace gfx {
 // A simple vertex shader for textured vertices.
 static const char *vxs =
     "#version 460 core\n"
+
     "uniform isampler2D CHARS;\n" // Screen characters: 1000 bytes
     "uniform isampler2D COLOR;\n" // Screen color ram: 1000 nibbles
+
     "uniform mat4 MVP;\n" // Model-View-Projection Matrix ("Camera")
     "uniform vec2 TextOffset;\n" // Offset on the screen, added to all coordinates.
 
@@ -23,46 +25,59 @@ static const char *vxs =
     "out int character_vs;\n"       // output: the character to display (0-255)
     "out flat int fg_col_vs;\n\n"   // output: the foreground color to display (0-15)
 
-    "int index;\n"  // index in screen and color ram (0-999), from screen coordinates.
-    "ivec2 coord;\n"    // "coordinates" into the screen/color ram.
-    "ivec4 txl;\n"
-
     "void main()\n"       // Shader: Calculate screen coordinates of the
     "{\n"                 // vertex from the 3D position.
     "    gl_Position = vec4( TextOffset + screen_coord*8, 0, 1); \n"
-    "    index = int(screen_coord.x) + int(screen_coord.y) * 40;\n"
-    "    coord = ivec2(index,0);\n"
-    "    txl = texelFetch(CHARS, coord, 0 );\n"
-    "   character_vs = txl.r & 0xFF;\n"
-    "   fg_col_vs = (texelFetch(COLOR, coord, 0 ).r) & 0x0F;\n"
+    "    int index = int(screen_coord.x) + int(screen_coord.y) * 40;\n"
+    "    ivec2 coord = ivec2(index,0);\n"
+    "    character_vs = (texelFetch(CHARS, coord, 0 ).r) & 0xFF;\n"
+    "    fg_col_vs = (texelFetch(COLOR, coord, 0 ).r) & 0x0F;\n"
     "}\n";
 
 //------------------------------------------------------------------
 static const char *gms =
 "#version 460 core\n"
-"uniform mat4 MVP;" // Model-View-Projection Matrix ("Camera")
-"layout ( points ) in;"// Each vertex we get in is a point
-"layout ( triangle_strip, max_vertices = 4 ) out;"// From the input we will produce a triangle strip of 4 vertices as output.
-"in int character_vs[];"
-"in int fg_col_vs[];"
-"out vec2 texcoord;"
-"out flat int fg_col_gs;"
-"void emit_vertex(float x, float y)"
-"{"
-"   vec2 rel = vec2(x,y) * 8.0f;" // The relative position of the vertex in pixels.
-"   gl_Position = MVP * ( gl_in[0].gl_Position + vec4(rel,0,0) );"
-"   texcoord = vec2 ( (character_vs[0] + x)*8, y*8);"
-"   fg_col_gs = fg_col_vs[0];"
-"   EmitVertex();"
-"}"
-"void main() {"
-"   emit_vertex(  0, 0 );"
-"   emit_vertex(  1, 0 );"
-"   emit_vertex(  0, 1 );"
-"   emit_vertex(  1, 1 );"
-"	EndPrimitive();"
-"}"
-;
+
+"uniform mat4 MVP;\n" // Model-View-Projection Matrix ("Camera")
+
+// Input: Each vertex we get in is a point
+"layout ( points ) in;\n"
+// Output: a triangle strip of 4 vertices as output.
+"layout ( triangle_strip, max_vertices = 4 ) out;\n"
+
+"in int character_vs[];\n" // Input: the character to display.
+"in int fg_col_vs[];\n"    // Input: the foreground color to use
+
+"out vec2 texcoord;\n"        // Texture coordinate to use in fragment shader
+"out flat int fg_col_gs;\n"   // Output: the foreground color to use
+
+"void emit_vertex(float x, float y)\n"
+"{\n"
+    // The relative position of the vertex in pixels.
+    // Scaling factor must match the value in the vertex shader!
+"   vec2 rel = vec2(x,y) * 8.0f;\n"
+    // The absolute output position: Input + relative position
+"   gl_Position = MVP * ( gl_in[0].gl_Position + vec4(rel,0,0) );\n"
+    // The texture coordinates: select one of the 256 characters
+    // Multiply by 8: The x-position reflects the bit in the byte from the
+    // Character generator.
+    // The y-position reflects the "row" in the character generator.
+"   texcoord = vec2 ( (character_vs[0] + x)*8, y*8);\n"
+    // Just push the foreground color through to the fragment shader.
+"   fg_col_gs = fg_col_vs[0];\n"
+    // emit the outputs.
+"   EmitVertex();\n"
+"}\n"
+
+// For each screen coordinate given from the vertex shader,
+// generate 4 vertices, one for each corner of the character to display.
+"void main() {\n"
+"   emit_vertex(  0, 0 );\n"    // top-left
+"   emit_vertex(  1, 0 );\n"    // top-right
+"   emit_vertex(  0, 1 );\n"    // bottom-left
+"   emit_vertex(  1, 1 );\n"    // bottom-right
+"	EndPrimitive();\n"
+"}\n";
 
 //------------------------------------------------------------------
 // The fragment shader
