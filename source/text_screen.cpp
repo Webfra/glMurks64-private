@@ -26,27 +26,18 @@ static const char *vxs =
     "out int character_vs;\n"
     "out flat int fg_col_vs;\n\n"
 
-    "out int index;\n"
-    "out ivec2 coord;\n"
-    "out ivec4 txl;\n"
-    "out float txl_r;\n"
+    "int index;\n"
+    "ivec2 coord;\n"
+    "ivec4 txl;\n"
 
     "void main()\n"       // Shader: Calculate screen coordinates of the
     "{\n"                 // vertex from the 3D position.
-//        "float x = float(index&0x0f);"
-//    "   int x = int(mod(index,40));"
-//    "   int y = int(index/40);"
-//    "   vec2 screen_coord = vec2(x, y);\n" // convert index to screen coordinates.
-    //"   gl_Position = vec4(screen_coord /*+ TextOffset*/, 0, 1);\n"
     "    gl_Position = vec4( TextOffset + screen_coord*8, 0, 1); \n"
     "    index = int(screen_coord.x) + int(screen_coord.y) * 40;\n"
     "    coord = ivec2(index,0);\n"
-//    "   character_vs = index;\n"
-//    "   character_vs = int(texelFetch(CHARS, ivec2(index,0), 0 ).r);\n"
     "    txl = texelFetch(CHARS, coord, 0 );\n"
-    "    txl_r = txl.r;\n"
-    "   character_vs = int(txl_r);\n"
-    "   fg_col_vs =    int(texelFetch(COLOR, ivec2(index,0), 0 ).r);\n"
+    "   character_vs = txl.r & 0xFF;\n"
+    "   fg_col_vs = (texelFetch(COLOR, ivec2(index,0), 0 ).r) & 0x0F;\n"
     "}\n";
 
 //------------------------------------------------------------------
@@ -135,7 +126,6 @@ void text_screen::init()
 
     auto chargen { utils::RM.load("roms/chargen") };
 
-    //screen.load(    (char*)&chars[0], 0, GL_TEXTURE_2D, 1000, 1, GL_R8UI, GL_RED );
     screen.gen().unit(0).bind(GL_TEXTURE_2D);
     screen.size(1000,1).iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE);
     screen.Image2D((char*)&chars[0]);
@@ -149,6 +139,13 @@ void text_screen::init()
     colram.Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP);
     colram.Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     colram.unbind();
+
+    chargen_tex.gen().unit(2).bind(GL_TEXTURE_2D).size(512,8);
+    chargen_tex.iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE);
+    chargen_tex.Image2D( chargen.data() );
+    chargen_tex.Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP);
+    chargen_tex.Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    chargen_tex.unbind();
 
     //colram.load(    (char*)&chars[0], 1, GL_TEXTURE_2D, 1000, 1, GL_R8, GL_RED );
     //chargen_tex.load( chargen.data(), 2, GL_TEXTURE_2D, 512,  8, GL_R8, GL_RED );
@@ -187,7 +184,7 @@ void text_screen::init()
     glUniform2f( loc_Offset, 0, 0 );
     screen.gl_Uniform( loc_CHARS );
     colram.gl_Uniform( loc_COLOR );
-    //chargen_tex.gl_Uniform( loc_TEX );
+    chargen_tex.gl_Uniform( loc_TEX );
 
     //------------------------------------------------------------------
     // Create a vertex attribute array and bind it.
@@ -216,7 +213,7 @@ void text_screen::render()
 {
     screen.bind( );
     colram.bind( );
-    //chargen_tex.bind();
+    chargen_tex.bind();
 
     glUseProgram( program_id );
     glBindVertexArray(vertex_array_id);
