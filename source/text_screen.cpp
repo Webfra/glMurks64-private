@@ -13,8 +13,9 @@ namespace gfx {
 // A simple vertex shader for textured vertices.
 static const char *vxs =
     "#version 460 core\n"
-    "uniform isampler1D CHARS;\n"
-    "uniform isampler1D COLOR;\n"
+    "uniform isampler2D CHARS;\n"
+    "uniform isampler2D COLOR;\n"
+//    "uniform isampler2D TEX;" // character generator ROM.
     "uniform mat4 MVP;\n" // Model-View-Projection Matrix ("Camera")
     "uniform vec2 TextOffset;\n" // Offset on the screen, added to all coordinates.
     "uniform vec4 background_color;\n"  // global screen background color
@@ -25,6 +26,11 @@ static const char *vxs =
     "out int character_vs;\n"
     "out flat int fg_col_vs;\n\n"
 
+    "out int index;\n"
+    "out ivec2 coord;\n"
+    "out ivec4 txl;\n"
+    "out float txl_r;\n"
+
     "void main()\n"       // Shader: Calculate screen coordinates of the
     "{\n"                 // vertex from the 3D position.
 //        "float x = float(index&0x0f);"
@@ -33,9 +39,14 @@ static const char *vxs =
 //    "   vec2 screen_coord = vec2(x, y);\n" // convert index to screen coordinates.
     //"   gl_Position = vec4(screen_coord /*+ TextOffset*/, 0, 1);\n"
     "    gl_Position = vec4( TextOffset + screen_coord*8, 0, 1); \n"
-    "    int index = int(screen_coord.x + screen_coord.y*40);\n"
-    "   character_vs = int(texture(CHARS, index).r) & 0xFF;\n"
-    "   fg_col_vs = texture(COLOR, index).r & 0x0F;\n"
+    "    index = int(screen_coord.x) + int(screen_coord.y) * 40;\n"
+    "    coord = ivec2(index,0);\n"
+//    "   character_vs = index;\n"
+//    "   character_vs = int(texelFetch(CHARS, ivec2(index,0), 0 ).r);\n"
+    "    txl = texelFetch(CHARS, coord, 0 );\n"
+    "    txl_r = txl.r;\n"
+    "   character_vs = int(txl_r);\n"
+    "   fg_col_vs =    int(texelFetch(COLOR, ivec2(index,0), 0 ).r);\n"
     "}\n";
 
 //------------------------------------------------------------------
@@ -124,9 +135,23 @@ void text_screen::init()
 
     auto chargen { utils::RM.load("roms/chargen") };
 
-    chargen_tex.load( chargen.data(), 512, 8, GL_R8, GL_RED );
-    screen.load(    (char*)&chars[0], 1000, 1, GL_R8, GL_RED );
-    colram.load(   (char*)&chars[0], 1000, 1, GL_R8, GL_RED );
+    //screen.load(    (char*)&chars[0], 0, GL_TEXTURE_2D, 1000, 1, GL_R8UI, GL_RED );
+    screen.gen().unit(0).bind(GL_TEXTURE_2D);
+    screen.size(1000,1).iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE);
+    screen.Image2D((char*)&chars[0]);
+    screen.Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP);
+    screen.Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    screen.unbind();
+
+    colram.gen().unit(1).bind(GL_TEXTURE_2D).size(1000,1);
+    colram.iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE);
+    colram.Image2D((char*)&chars[0]);
+    colram.Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP);
+    colram.Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    colram.unbind();
+
+    //colram.load(    (char*)&chars[0], 1, GL_TEXTURE_2D, 1000, 1, GL_R8, GL_RED );
+    //chargen_tex.load( chargen.data(), 2, GL_TEXTURE_2D, 512,  8, GL_R8, GL_RED );
 
 # if 1
     std::cout << "Compiling vertex shader ------------------------------------\n";
@@ -156,6 +181,14 @@ void text_screen::init()
             << " bg:" << loc_bg_color << " index:" << loc_index
             << " offs:" << loc_Offset << std::endl;
 
+
+    //------------------------------------------------------------------
+    glUseProgram( program_id );
+    glUniform2f( loc_Offset, 0, 0 );
+    screen.gl_Uniform( loc_CHARS );
+    colram.gl_Uniform( loc_COLOR );
+    //chargen_tex.gl_Uniform( loc_TEX );
+
     //------------------------------------------------------------------
     // Create a vertex attribute array and bind it.
     glGenVertexArrays(1, &vertex_array_id);
@@ -181,14 +214,11 @@ void text_screen::init()
 
 void text_screen::render()
 {
+    screen.bind( );
+    colram.bind( );
+    //chargen_tex.bind();
+
     glUseProgram( program_id );
-    glUniform2f( loc_Offset, 0, 0 );
-    glUniform1i(loc_TEX, 0);
-    chargen_tex.bind( GL_TEXTURE0 );
-    glUniform1i(loc_CHARS, 1 );
-    screen.bind( GL_TEXTURE1 );
-    glUniform1i(loc_COLOR, 2 );
-    colram.bind( GL_TEXTURE2 );
     glBindVertexArray(vertex_array_id);
     glDrawArrays( GL_POINTS, 0, 1000);
 }

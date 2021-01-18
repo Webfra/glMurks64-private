@@ -202,6 +202,8 @@ void GLAPIENTRY MessageCallback(
     printf("-----------------------\nGL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
                       ctype,      type,         severity,      message );
     fflush(stdout);
+    if( type == GL_DEBUG_TYPE_ERROR )
+        throw(-1);
     //------------------------------------------------------------------
 }
 //======================================================================
