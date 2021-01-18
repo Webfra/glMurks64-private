@@ -78,7 +78,7 @@ public:
     {
         assert( (tex_target == GL_TEXTURE_1D)
                 || (tex_target == GL_PROXY_TEXTURE_1D) );
-        glEnable(GL_TEXTURE_1D);
+        //glEnable(GL_TEXTURE_1D);
         glTexImage1D( tex_target,
                       tex_level,
                       tex_internalFormat,

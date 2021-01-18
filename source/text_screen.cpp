@@ -13,21 +13,18 @@ namespace gfx {
 // A simple vertex shader for textured vertices.
 static const char *vxs =
     "#version 460 core\n"
-    "uniform isampler2D CHARS;\n"
-    "uniform isampler2D COLOR;\n"
-//    "uniform isampler2D TEX;" // character generator ROM.
+    "uniform isampler2D CHARS;\n" // Screen characters: 1000 bytes
+    "uniform isampler2D COLOR;\n" // Screen color ram: 1000 nibbles
     "uniform mat4 MVP;\n" // Model-View-Projection Matrix ("Camera")
     "uniform vec2 TextOffset;\n" // Offset on the screen, added to all coordinates.
-    "uniform vec4 background_color;\n"  // global screen background color
-    "uniform vec3 pallette[16];\n\n" // The 16 colors
 
-    "in vec2 screen_coord;\n\n" // Input: The index of the character to display.
+    "in vec2 screen_coord;\n\n" // Input: The coordinates (0-39,0-24) of the character to display.
 
-    "out int character_vs;\n"
-    "out flat int fg_col_vs;\n\n"
+    "out int character_vs;\n"       // output: the character to display (0-255)
+    "out flat int fg_col_vs;\n\n"   // output: the foreground color to display (0-15)
 
-    "int index;\n"
-    "ivec2 coord;\n"
+    "int index;\n"  // index in screen and color ram (0-999), from screen coordinates.
+    "ivec2 coord;\n"    // "coordinates" into the screen/color ram.
     "ivec4 txl;\n"
 
     "void main()\n"       // Shader: Calculate screen coordinates of the
@@ -37,7 +34,7 @@ static const char *vxs =
     "    coord = ivec2(index,0);\n"
     "    txl = texelFetch(CHARS, coord, 0 );\n"
     "   character_vs = txl.r & 0xFF;\n"
-    "   fg_col_vs = (texelFetch(COLOR, ivec2(index,0), 0 ).r) & 0x0F;\n"
+    "   fg_col_vs = (texelFetch(COLOR, coord, 0 ).r) & 0x0F;\n"
     "}\n";
 
 //------------------------------------------------------------------
