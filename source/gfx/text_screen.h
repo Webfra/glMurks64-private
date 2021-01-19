@@ -15,7 +15,7 @@ public:
     //======================================================================
     void init();
     void render();
-    void update_screen(int width, int height);
+    void resize_screen(int width, int height);
     void update_memories( uint8_t new_chars[1000] );
 
 private:

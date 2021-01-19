@@ -188,7 +188,7 @@ void text_screen::update_memories( uint8_t new_chars[1000] )
 }
 
 //======================================================================
-void text_screen::update_screen(int width, int height)
+void text_screen::resize_screen(int width, int height)
 {
     //------------------------------------------------------------------
     mat4x4 MVP;
