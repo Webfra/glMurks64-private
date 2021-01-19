@@ -6,9 +6,9 @@
 #include <SDL2/SDL.h>
 #include <glad/glad.h>
 //======================================================================
-kz// Note: A SCALING of 8 means characters are 8x8 pixels in size.
+// Note: A SCALING of 8 means characters are 8x8 pixels in size.
 #define SCALING (8)
-#define BORDER (60)
+#define BORDER (20)
 #define SCREEN_WIDTH  (40*SCALING + BORDER*2)
 #define SCREEN_HEIGHT (25*SCALING + BORDER*2)
 //======================================================================
