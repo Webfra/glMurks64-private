@@ -235,7 +235,7 @@ void Graphics::render()
     //------------------------------------------------------------------
     // Disable depth test and face culling.
     glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     //------------------------------------------------------------------
     // Define the background color
     glClearColor(color_table[14][0], color_table[14][1], color_table[14][2], 0.0f);

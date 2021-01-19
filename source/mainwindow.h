@@ -6,7 +6,7 @@
 #include <SDL2/SDL.h>
 #include <glad/glad.h>
 //======================================================================
-#define SCALING (32)
+#define SCALING (38)
 #define BORDER (60)
 #define SCREEN_WIDTH  (40*SCALING + BORDER*2)
 #define SCREEN_HEIGHT (25*SCALING + BORDER*2)

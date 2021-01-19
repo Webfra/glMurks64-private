@@ -94,7 +94,7 @@ static const char *gms =
         // Character generator.
         // The y-position reflects the "row" in the character generator.
     "   char_gs = character_vs[0];"
-    "   texcoord = vec2 (x,y)*8;\n"
+    "   texcoord = vec2(x,y) * 8.0f;\n"
         // Just push the foreground color through to the fragment shader.
     "   fg_col_gs = fg_col_vs[0];\n"
         // emit the outputs.
@@ -104,10 +104,10 @@ static const char *gms =
     // For each screen coordinate given from the vertex shader,
     // generate 4 vertices, one for each corner of the character to display.
     "void main() {\n"
-    "   emit_vertex(  0, 0 );\n"    // top-left
-    "   emit_vertex(  1, 0 );\n"    // top-right
     "   emit_vertex(  0, 1 );\n"    // bottom-left
     "   emit_vertex(  1, 1 );\n"    // bottom-right
+    "   emit_vertex(  0, 0 );\n"    // top-left
+    "   emit_vertex(  1, 0 );\n"    // top-right
     "	EndPrimitive();\n"
     "}\n";
 
@@ -178,21 +178,16 @@ GLuint link_program3( GLuint vxs_id, GLuint gms_id, GLuint fts_id )
 void text_screen::init()
 {
     //------------------------------------------------------------------
-    // A buffer representing the text screen.
-    uint8_t chars[1000];
-    uint8_t colrs[1000];
-
-    // A buffer holding the screen coordinates (0-39,0-24) of each character.
-    vec2 screen_coords[1000];
-    //------------------------------------------------------------------
-    // Fill the buffers with something visible
+    // Clear the buffers.
     for(int i=0;i<1000;i++)
     {
-        chars[i]=32;
-        colrs[i]=14;
+        chars[i]=32; // Space character
+        colrs[i]=14; // light blue color
         screen_coords[i][0]   = float(i % 40);
         screen_coords[i][1]   = float(i / 40);
     }
+    //------------------------------------------------------------------
+    // Fill the screen with something visible
     for(int x=0;x<16;x++)
     {
         for(int y=0;y<16;y++)
@@ -200,7 +195,6 @@ void text_screen::init()
             chars[x+y*40] = x+y*16;
         }
     }
-
 
     //------------------------------------------------------------------
     // Set upt the "texture" to hold the screen RAM.
@@ -221,7 +215,7 @@ void text_screen::init()
     colram.unbind();
 
     //------------------------------------------------------------------
-    // Set up the texture to hold the characters.
+    // Set up the texture to hold the character generator ROM.
     auto CG { utils::RM.load("roms/chargen") };
     chrgen.gen().unit(2).bind(GL_TEXTURE_2D).size(8,512);
     chrgen.iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE);
@@ -238,28 +232,23 @@ void text_screen::init()
     program_id = link_program3( vxs_id, gms_id, fts_id);
 
     //------------------------------------------------------------------
-    // Get the uniform locations of the shader inputs and uniforms.
-    GLint loc_index = glGetAttribLocation( program_id, "screen_coord" );
-    loc_MVP = glGetUniformLocation( program_id, "MVP"  );
-    loc_TEX = glGetUniformLocation( program_id, "TEX"  );
-    loc_CHARS = glGetUniformLocation( program_id, "CHARS"  );
-    loc_COLOR = glGetUniformLocation( program_id, "COLOR"  );
+    // Get the locations of the shader inputs and uniforms.
+    loc_coord =    glGetAttribLocation( program_id, "screen_coord" );
+
+    loc_MVP =      glGetUniformLocation( program_id, "MVP"  );
+    loc_TEX =      glGetUniformLocation( program_id, "TEX"  );
+    loc_CHARS =    glGetUniformLocation( program_id, "CHARS"  );
+    loc_COLOR =    glGetUniformLocation( program_id, "COLOR"  );
     loc_pallette = glGetUniformLocation( program_id, "pallette"  );
     loc_bg_color = glGetUniformLocation( program_id, "background_color"  );
-    loc_Offset = glGetUniformLocation( program_id, "TextOffset");
-    loc_scaling = glGetUniformLocation( program_id, "scaling"  );
-    loc_charset = glGetUniformLocation( program_id, "charset");
+    loc_Offset =   glGetUniformLocation( program_id, "TextOffset");
+    loc_scaling =  glGetUniformLocation( program_id, "scaling"  );
+    loc_charset =  glGetUniformLocation( program_id, "charset");
 
     //------------------------------------------------------------------
-#if 0
-    std::cout << "mvp" << loc_MVP << " TEX:" << loc_TEX << " CHARS:" ;
-    std::cout << loc_CHARS << " COLOR:" << loc_COLOR;
-    std::cout << " pall:" << loc_pallette
-            << " bg:" << loc_bg_color << " index:" << loc_index
-            << " offs:" << loc_Offset << std::endl;
-#endif
-    //------------------------------------------------------------------
+    // Set some defaults of the shader uniforms
     glUseProgram( program_id );
+
     glUniform2f( loc_Offset, BORDER, BORDER );
     glUniform1f( loc_scaling, SCALING); // keep it power of 2, or it may look ugly.
     glUniform1i( loc_charset, 0);
@@ -271,8 +260,7 @@ void text_screen::init()
 
     //------------------------------------------------------------------
     // Set the palette
-    vec3 palette[16];
-    glUniform3fv( loc_pallette, sizeof(palette), &color_table.data()[0][0] );
+    glUniform3fv( loc_pallette, sizeof(vec3[16]), &color_table.data()[0][0] );
 
     //------------------------------------------------------------------
     // Create a vertex attribute array and bind it.
@@ -283,8 +271,8 @@ void text_screen::init()
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_id);
     //------------------------------------------------------------------
     // Enable shader input "vPos" and describe its layout in the vertex buffer.
-    glEnableVertexAttribArray(loc_index);
-    glVertexAttribPointer( loc_index, 2, GL_FLOAT, GL_FALSE, sizeof(vec2), 0 );
+    glEnableVertexAttribArray(loc_coord);
+    glVertexAttribPointer( loc_coord, 2, GL_FLOAT, GL_FALSE, sizeof(vec2), 0 );
     //------------------------------------------------------------------
     // Upload the vertices to the vertex buffer.
     glBufferData( GL_ARRAY_BUFFER, sizeof(screen_coords), &screen_coords[0], GL_DYNAMIC_DRAW );
@@ -295,6 +283,7 @@ void text_screen::init()
 
 }
 
+//======================================================================
 void text_screen::render()
 {
     screen.bind( );
@@ -307,4 +296,6 @@ void text_screen::render()
 }
 
 
+//======================================================================
 } // End of namespace gfx
+//======================================================================
