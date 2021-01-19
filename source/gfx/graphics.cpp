@@ -100,13 +100,16 @@ void Graphics::init()
 
     // Create an OpenGL texture from the image.
     charset.tex.gen().activate(0).bind(GL_TEXTURE_2D).size(128,128)
-            .iformat(GL_R8).format(GL_RED).type(GL_UNSIGNED_BYTE)
-            .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
-            .Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-            .Image2D(&image[0][0])
-            .unbind();
+        .iformat(GL_R8).format(GL_RED).type(GL_UNSIGNED_BYTE)
+        .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
+        .Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        .Image2D(&image[0][0])
+        .unbind();
+    
+    // Create the OpenGL Rectangle.
     charset.init( 532, 20, 512, 512);
 
+    // Initialize the text screen.
     screen.init();
 }
 

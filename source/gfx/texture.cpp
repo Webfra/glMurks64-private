@@ -2,35 +2,77 @@
 
 namespace gfx {
 
-#if 0
-
-void Texture::load( char * buffer, GLenum unit, GLenum target, GLsizei width,
-                    GLsizei height, GLint internalformat, GLenum format )
-{
-    //------------------------------------------------------------------
-    // Store texture target for later binds.
-    tex_unit = unit;
-    tex_target = target;
-    //------------------------------------------------------------------
-    // Generate a new texture ID and make it the current 2D Texture object.
-    glGenTextures( 1, &texture_name );
-    glActiveTexture( GL_TEXTURE0 + tex_unit);
-    glBindTexture( tex_target, texture_name );
-    //------------------------------------------------------------------
-    // Upload the texture data to OpenGL.
-    glTexImage2D( tex_target, 0, internalformat, width, height,
-                                0, format, GL_UNSIGNED_BYTE, &buffer[0]);
-    //------------------------------------------------------------------
-    // Configure texture wrapping at the edges and filtering mode.
-    glTexParameteri(tex_target, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(tex_target, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(tex_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(tex_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    //------------------------------------------------------------------
-    // Unbind the texture
-    glBindTexture( tex_target, 0 );
-}
-
-#endif
+    void Texture::gl_Uniform( GLint location )
+    {
+        glUniform1i( location, tex_unit );
+    }
+    Texture &Texture::gen()
+    {
+        glGenTextures(1, &texture_name);
+        return *this;
+    }
+    Texture &Texture::activate()
+    {
+        glActiveTexture( GL_TEXTURE0 + tex_unit);
+        return *this;
+    }
+    Texture &Texture::activate( GLenum textureUnit )
+    {
+        tex_unit = textureUnit;
+        return activate();
+    }
+    Texture &Texture::bind()
+    {
+        glBindTexture( tex_target, texture_name );
+        return *this;
+    }
+    Texture &Texture::bind( GLenum target )
+    {
+        tex_target = target;
+        return bind();
+    }
+    Texture &Texture::iformat( GLint internalFormat /* = GL_RGB */ )
+    {
+        tex_internalFormat = internalFormat;
+        return *this;
+    }
+    Texture &Texture::size( GLsizei width, GLsizei height )
+    {
+        tex_width  = width;
+        tex_height = height;
+        return *this;
+    }
+    Texture &Texture::format( GLint format /* = GL_RGB */ )
+    {
+        tex_format = format;
+        return *this;
+    }
+    Texture &Texture::type( GLint type /* = GL_UNSIGNED_BYTE */ )
+    {
+        tex_type = type;
+        return *this;
+    }
+    Texture &Texture::Image2D(const GLvoid * data)
+    {
+        glTexImage2D( tex_target,
+                      tex_level,
+                      tex_internalFormat,
+                      tex_width,
+                      tex_height,
+                      tex_border,
+                      tex_format,
+                      tex_type,
+                      data);
+        return *this;
+    }
+    Texture &Texture::Pi( GLenum pname, GLint param )
+    {
+        glTexParameteri( tex_target, pname, param );
+        return *this;
+    }
+    void Texture::unbind()
+    {
+        glBindTexture( tex_target, 0 );
+    }
 
 } // End of namespace gfx

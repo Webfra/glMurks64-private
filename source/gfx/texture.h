@@ -11,104 +11,26 @@ namespace gfx {
 class Texture
 {
 public:
-#if 0
-    void load( char * buffer, GLenum unit, GLenum target, GLint width, GLint height,
-               GLint internalformat, GLenum format );
-    //operator GLint() const { return texture_name; }
-    void bind() const
-    {
-        glActiveTexture( GL_TEXTURE0 + tex_unit );
-        glBindTexture( tex_target, texture_name);
-    }
-#endif
-    void gl_Uniform( GLint location )
-    {
-        glUniform1i( location, tex_unit );
-    }
-    Texture &gen()
-    {
-        glGenTextures(1, &texture_name);
-        return *this;
-    }
-    Texture &activate()
-    {
-        glActiveTexture( GL_TEXTURE0 + tex_unit);
-        return *this;
-    }
-    Texture &activate( GLenum textureUnit )
-    {
-        tex_unit = textureUnit;
-        return activate();
-    }
-    Texture &bind()
-    {
-        glBindTexture( tex_target, texture_name );
-        return *this;
-    }
-    Texture &bind( GLenum target )
-    {
-        tex_target = target;
-        return bind();
-    }
-    Texture &iformat( GLint internalFormat = GL_RGB )
-    {
-        tex_internalFormat = internalFormat;
-        return *this;
-    }
-    Texture &size( GLsizei width, GLsizei height )
-    {
-        tex_width = width;
-        tex_height = height;
-        return *this;
-    }
-    Texture &format( GLint format = GL_RGB )
-    {
-        tex_format = format;
-        return *this;
-    }
-    Texture &type( GLint type = GL_UNSIGNED_BYTE )
-    {
-        tex_type = type;
-        return *this;
-    }
-    Texture &Image2D(const GLvoid * data)
-    {
-        assert( (tex_target == GL_TEXTURE_2D) );
-        glTexImage2D( tex_target,
-                      tex_level,
-                      tex_internalFormat,
-                      tex_width,
-                      tex_height,
-                      tex_border,
-                      tex_format,
-                      tex_type,
-                      data);
-        return *this;
-    }
-    Texture &Image1D(const GLvoid * data)
-    {
-        assert( (tex_target == GL_TEXTURE_1D)
-                || (tex_target == GL_PROXY_TEXTURE_1D) );
-        //glEnable(GL_TEXTURE_1D);
-        glTexImage1D( tex_target,
-                      tex_level,
-                      tex_internalFormat,
-                      tex_width,
-                      tex_border,
-                      tex_format,
-                      tex_type,
-                      data);
-        return *this;
-    }
-    Texture &Pi( GLenum pname, GLint param )
-    {
-        glTexParameteri( tex_target, pname, param );
-        return *this;
-    }
-    void unbind()
-    {
-        glBindTexture( tex_target, 0 );
-    }
+    void gl_Uniform( GLint location );          // glUniform1i()
+    
+    Texture &gen();                             // glGenTextures()
+    
+    Texture &activate( GLenum textureUnit );    // glActiveTexture - set given value
+    Texture &activate();                        // glActiveTexture - reuse last set value
+    
+    Texture &bind( GLenum target );             // glBindTExture   - set given value
+    Texture &bind();                            // glBindTexte     - reuse last set value
+
+    Texture &iformat( GLint internalFormat = GL_RGB );  // set internalFormat for Image2D()
+    Texture &size( GLsizei width, GLsizei height );     // set width and height for Image2D()
+    Texture &format( GLint format = GL_RGB );           // set format for Image2D()
+    Texture &type( GLint type = GL_UNSIGNED_BYTE );     // set type for Image2D()
+    Texture &Image2D(const GLvoid * data);              // glTexImage2D()
+
+    Texture &Pi( GLenum pname, GLint param );   // glTexParameteri()
+    
+    void unbind();                              // glBindTexture(0)
+
 private:
     GLuint texture_name { GL_INVALID_VALUE };
     GLenum tex_unit { GL_TEXTURE0 };
