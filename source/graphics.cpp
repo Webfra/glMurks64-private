@@ -207,27 +207,20 @@ void Graphics::init()
     GLchar image[128][128];
     auto chargen { utils::RM.load("roms/chargen") };
     prepare_charset( (uint8_t*)chargen.data(), image );
-#if 1
-#if 0
-    texture.load( &image[0][0], 0, GL_TEXTURE_2D, 128, 128, GL_R8, GL_RED );
-#else
     texture.gen().unit(0).bind(GL_TEXTURE_2D).size(128,128)
             .iformat(GL_R8).format(GL_RED).type(GL_UNSIGNED_BYTE)
+            .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
+            .Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
             .Image2D(&image[0][0])
-            .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP)
-            .Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
-            .Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-            .Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
             .unbind();
-#endif
     charset.init( &texture, 256, 256, 256, 256);
-#endif
+
     screen.init();
 }
 
 void Graphics::render()
 {
-    std::cout << "--- Start Renderloop ---" << std::endl;
+    //std::cout << "--- Start Renderloop ---" << std::endl;
     //------------------------------------------------------------------
     // Disable depth test and face culling.
     glDisable(GL_DEPTH_TEST);

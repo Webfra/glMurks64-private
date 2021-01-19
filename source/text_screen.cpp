@@ -27,7 +27,7 @@ static const char *vxs =
 
     "void main()\n"       // Shader: Calculate screen coordinates of the
     "{\n"                 // vertex from the 3D position.
-    "    gl_Position = vec4( TextOffset + screen_coord*8, 0, 1); \n"
+    "    gl_Position = vec4( TextOffset + screen_coord*32, 0, 1); \n"
     "    int index = int(screen_coord.x) + int(screen_coord.y) * 40;\n"
     "    ivec2 coord = ivec2(index,0);\n"
     "    character_vs = (texelFetch(CHARS, coord, 0 ).r) & 0xFF;\n"
@@ -50,19 +50,21 @@ static const char *gms =
 
 "out vec2 texcoord;\n"        // Texture coordinate to use in fragment shader
 "out flat int fg_col_gs;\n"   // Output: the foreground color to use
+"out flat int char_gs;\n"
 
 "void emit_vertex(float x, float y)\n"
 "{\n"
     // The relative position of the vertex in pixels.
     // Scaling factor must match the value in the vertex shader!
-"   vec2 rel = vec2(x,y) * 8.0f;\n"
+"   vec2 rel = vec2(x,y) * 32.0f;\n"
     // The absolute output position: Input + relative position
 "   gl_Position = MVP * ( gl_in[0].gl_Position + vec4(rel,0,0) );\n"
     // The texture coordinates: select one of the 256 characters
     // Multiply by 8: The x-position reflects the bit in the byte from the
     // Character generator.
     // The y-position reflects the "row" in the character generator.
-"   texcoord = vec2 ( (character_vs[0] + x)*8, y*8);\n"
+"   char_gs = character_vs[0];"
+"   texcoord = vec2 (x,y)*8;\n"
     // Just push the foreground color through to the fragment shader.
 "   fg_col_gs = fg_col_vs[0];\n"
     // emit the outputs.
@@ -83,22 +85,29 @@ static const char *gms =
 // The fragment shader
 static const char *fts =
 "#version 460 core\n"
-"uniform isampler2D TEX;" // character generator ROM.
-"uniform int background_color;"  // global screen background color
-"uniform vec3 pallette[16];" // The 16 colors
-"in vec2 texcoord;"
-"in flat int fg_col_gs;"
-"out vec4 FragColor;"
-"void main()"
-"{"
-"   int bit  = int(texcoord.x) % 32;"
-"   ivec2  tx = ivec2( int(texcoord.x/8), int(texcoord.y) );"
-"   int   r  = texture( TEX, tx ).r;"
-"   float f  = (( r & (1<<bit) )!=0) ? 1.0f : 0.0f;"
-"   vec3 fg_col = pallette[fg_col_gs];"
-"   FragColor = mix( vec4( pallette[background_color],1), vec4(fg_col, 1.0f), f);"
-"}"
-;
+
+"uniform isampler2D TEX;\n" // character generator ROM.
+"uniform int background_color;\n"  // global screen background color
+"uniform vec3 pallette[16];\n" // The 16 colors
+
+"in vec2 texcoord;\n"
+"in flat int fg_col_gs;\n"
+"in flat int char_gs;\n"
+
+"out vec4 FragColor;\n"
+
+"void main()\n"
+"{\n"
+"   int bit  = int(texcoord.x) & 0x7;\n"
+"   int col  = int(texcoord.y) & 0x7;\n"
+"   int row  = char_gs;\n"
+"   ivec2 tx = ivec2( col, row );\n"
+"   int byte = texelFetch( TEX, tx, 0 ).r;\n"
+"   float f  = float(((byte>>(7-bit))&1)) * 1.0f;\n"
+"   vec4 fg_col = vec4( pallette[fg_col_gs], 1);\n"
+"   vec4 bg_col = vec4( pallette[background_color], 1);\n"
+"   FragColor = mix( bg_col, fg_col, f);\n"
+"}\n";
 
 GLuint link_program( GLuint vxs_id, GLuint gms_id, GLuint fts_id )
 {
@@ -136,33 +145,39 @@ void text_screen::init()
         screen_coords[i][1]   = float(i / 40);
     }
 
-    auto chargen { utils::RM.load("roms/chargen") };
-
-    screen.gen().unit(0).bind(GL_TEXTURE_2D);
-    screen.size(1000,1).iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE);
-    screen.Image2D((char*)&chars[0]);
+    screen.gen().unit(0).bind(GL_TEXTURE_2D).size(1000,1);
+    screen.iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE);
     screen.Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP);
     screen.Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    screen.Image2D((char*)&chars[0]);
     screen.unbind();
 
     colram.gen().unit(1).bind(GL_TEXTURE_2D).size(1000,1);
     colram.iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE);
-    colram.Image2D((char*)&chars[0]);
     colram.Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP);
     colram.Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    colram.Image2D((char*)&chars[0]);
     colram.unbind();
 
-    chargen_tex.gen().unit(2).bind(GL_TEXTURE_2D).size(512,8);
-    chargen_tex.iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE);
-    chargen_tex.Image2D( chargen.data() );
-    chargen_tex.Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP);
-    chargen_tex.Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    chargen_tex.unbind();
+    auto CG { utils::RM.load("roms/chargen") };
+    chrgen.gen().unit(2).bind(GL_TEXTURE_2D).size(8,512);
+    chrgen.iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE);
+    chrgen.Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP);
+    chrgen.Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    chrgen.Image2D( CG.data() );
+    chrgen.unbind();
+    for ( int row =0; row<8; row++)
+    {
+        int rowsize = 16;
+        for( int col=0; col<rowsize; col++)
+        {
+            int pos = row*rowsize + col;
+            std::cout << std::hex << (int)CG[pos] << " ";
+        }
+        std::cout << std::dec << std::endl;
+    }
 
-    //colram.load(    (char*)&chars[0], 1, GL_TEXTURE_2D, 1000, 1, GL_R8, GL_RED );
-    //chargen_tex.load( chargen.data(), 2, GL_TEXTURE_2D, 512,  8, GL_R8, GL_RED );
 
-# if 1
     std::cout << "Compiling vertex shader ------------------------------------\n";
     auto vxs_id = compile_shader( GL_VERTEX_SHADER, vxs );
     std::cout << "Compiling geometry shader ------------------------------------\n";
@@ -172,7 +187,6 @@ void text_screen::init()
     std::cout << "Linking program  --------------------------------------------\n";
     program_id = link_program( vxs_id, gms_id, fts_id);
     std::cout << program_id << " " << vxs_id << " " << gms_id << " " << fts_id << "\n";
-#endif
 
     GLint loc_index = glGetAttribLocation( program_id, "screen_coord" );
 
@@ -196,7 +210,13 @@ void text_screen::init()
     glUniform2f( loc_Offset, 0, 0 );
     screen.gl_Uniform( loc_CHARS );
     colram.gl_Uniform( loc_COLOR );
-    chargen_tex.gl_Uniform( loc_TEX );
+    chrgen.gl_Uniform( loc_TEX );
+
+    // Set the palette (just gray scale for now, 'cause its easy...)
+    vec3 palette[16];
+    for( int i=0; i<16; i++)
+        palette[i][0] = palette[i][1] = palette[i][2] = 1.0f * i / 16.0f;
+    glUniform3fv( loc_pallette, sizeof(palette), &palette[0][0] );
 
     //------------------------------------------------------------------
     // Create a vertex attribute array and bind it.
@@ -225,7 +245,7 @@ void text_screen::render()
 {
     screen.bind( );
     colram.bind( );
-    chargen_tex.bind();
+    chrgen.bind();
 
     glUseProgram( program_id );
     glBindVertexArray(vertex_array_id);

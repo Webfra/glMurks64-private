@@ -24,7 +24,7 @@ public:
     }
 
 private:
-    Texture chargen_tex;
+    Texture chrgen;
     Texture screen;
     Texture colram;
     GLuint program_id;
