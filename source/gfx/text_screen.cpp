@@ -13,7 +13,6 @@
 namespace gfx {
 
 //========================================================================
-
 std::array<ivec3, 16> color_table { {
     // Taken from the screenshot of the C64-wiki.com
     // https://www.c64-wiki.com/wiki/color
@@ -36,7 +35,6 @@ std::array<ivec3, 16> color_table { {
     {  179,  179,  179 }  // 15  Light Grey
 } };
 
-
 //========================================================================
 // A vertex shader for the text screen.
 static const char *vxs =
@@ -51,35 +49,6 @@ static const char *fts =
 #include "text_screen_shaders.fs"
 ;
 
-#if 0
-//========================================================================
-// Link 3 shader into a shader program.
-GLuint link_program3( GLuint vxs_id, GLuint gms_id, GLuint fts_id )
-{
-    //------------------------------------------------------------------
-    // A buffer for holding messages from linking the program.
-    GLchar buffer[2048];
-    GLsizei length;
-    //------------------------------------------------------------------
-    // Create a new shader program object to hold the shaders.
-    GLuint program_id = glCreateProgram();
-    // Attach the vertex and fragment shaders.
-    glAttachShader( program_id, vxs_id );
-    glAttachShader( program_id, gms_id );
-    glAttachShader( program_id, fts_id );
-    // Link the shader program.
-    glLinkProgram( program_id );
-    // See if any errors occurred during linking.
-    glGetProgramInfoLog( program_id, 2047, &length, buffer);
-    if (length > 0)
-    {
-        fprintf(stderr, "Linking Program log: %s", buffer);
-        exit(-1);
-    }
-    return program_id;
-}
-#endif
-
 //========================================================================
 // Setup the text screen objects;
 void text_screen::init()
@@ -90,46 +59,42 @@ void text_screen::init()
     {
         chars[i]=32; // Space character
         colrs[i]=14; // light blue color
-        screen_coords[i][0]   = float(i % 40);
-        screen_coords[i][1]   = float(i / 40);
+        coords[i][0]   = float(i % 40);
+        coords[i][1]   = float(i / 40);
     }
     //------------------------------------------------------------------
     // Fill the screen with something visible
     for(int x=0;x<16;x++)
-    {
         for(int y=0;y<16;y++)
-        {
             chars[x+y*40] = x+y*16;
-        }
-    }
 
     //------------------------------------------------------------------
-    // Set upt the "texture" to hold the screen RAM.
-    screen.gen().activate(0).bind(GL_TEXTURE_2D).size(1000,1);
-    screen.iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE);
-    screen.Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP);
-    screen.Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    screen.Image2D((char*)&chars[0]);
-    screen.unbind();
+    // Set up the "texture" to hold the screen RAM.
+    screen.gen().activate(0).bind(GL_TEXTURE_2D).size(1000,1)
+        .iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE)
+        .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
+        .Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        .Image2D((char*)&chars[0])
+        .unbind();
 
     //------------------------------------------------------------------
     // Set up the "texture" to hold the color RAM.
-    colram.gen().activate(1).bind(GL_TEXTURE_2D).size(1000,1);
-    colram.iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE);
-    colram.Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP);
-    colram.Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    colram.Image2D((char*)&colrs[0]);
-    colram.unbind();
+    colram.gen().activate(1).bind(GL_TEXTURE_2D).size(1000,1)
+        .iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE)
+        .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
+        .Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        .Image2D((char*)&colrs[0])
+        .unbind();
 
     //------------------------------------------------------------------
     // Set up the texture to hold the character generator ROM.
     auto CG { utils::RM.load("roms/chargen") };
-    chrgen.gen().activate(2).bind(GL_TEXTURE_2D).size(8,512);
-    chrgen.iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE);
-    chrgen.Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP);
-    chrgen.Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    chrgen.Image2D( CG.data() );
-    chrgen.unbind();
+    chrgen.gen().activate(2).bind(GL_TEXTURE_2D).size(8,512)
+        .iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE)
+        .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
+        .Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        .Image2D( CG.data() )
+        .unbind();
 
     //------------------------------------------------------------------
     // Compile and link the shader program.
@@ -168,7 +133,6 @@ void text_screen::init()
     //------------------------------------------------------------------
     // Set the palette
     glUniform3iv( loc_palette, sizeof(ivec3[16]), &color_table.data()[0][0] );
-
     //------------------------------------------------------------------
     // Create a vertex attribute array and bind it.
     glGenVertexArrays(1, &vertex_array_id);
@@ -182,33 +146,58 @@ void text_screen::init()
     glVertexAttribPointer( loc_coord, 2, GL_FLOAT, GL_FALSE, sizeof(vec2), 0 );
     //------------------------------------------------------------------
     // Upload the vertices to the vertex buffer.
-    glBufferData( GL_ARRAY_BUFFER, sizeof(screen_coords), &screen_coords[0], GL_DYNAMIC_DRAW );
+    glBufferData( GL_ARRAY_BUFFER, sizeof(coords), &coords[0], GL_DYNAMIC_DRAW );
     //------------------------------------------------------------------
     // Unbind the vertex attribute array and the vertex buffer.
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-
+    //------------------------------------------------------------------
 }
 
 //======================================================================
 void text_screen::render()
 {
     //------------------------------------------------------------------
-    // Define the background color
-    glClearColor(   color_table[14][0]/255.0f, 
-                    color_table[14][1]/255.0f, 
-                    color_table[14][2]/255.0f, 0.0f);
+    // TEMPORARY TEST: CHANGE SCREEN CHARACTERS
+    chars[0]++;
+    update_memories( chars );
+    //------------------------------------------------------------------
+    // Define the background color.
+    glClearColor( color_table[14][0]/255.0f, 
+                  color_table[14][1]/255.0f, 
+                  color_table[14][2]/255.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-
+    //------------------------------------------------------------------
+    // Activate the texture units and bind the texture buffers
+    // as defined at initialization.
     screen.activate().bind();
     colram.activate().bind();
     chrgen.activate().bind();
-
+    //------------------------------------------------------------------
+    // Draw the vertices of the texture screen.
     glUseProgram( program_id );
     glBindVertexArray(vertex_array_id);
     glDrawArrays( GL_POINTS, 0, 1000);
+    //------------------------------------------------------------------
 }
 
+//======================================================================
+void text_screen::update_memories( uint8_t new_chars[1000] )
+{
+    screen.bind().Image2D( &new_chars[0] );
+}
+
+//======================================================================
+void text_screen::update_screen(int width, int height)
+{
+    //------------------------------------------------------------------
+    mat4x4 MVP;
+    mat4x4_ortho( MVP, 0, width, height, 0, 1, -1 );
+    //------------------------------------------------------------------
+    glUseProgram( program_id );
+    glUniformMatrix4fv( loc_MVP, 1, false, &MVP[0][0]);
+    //------------------------------------------------------------------
+}
 
 //======================================================================
 } // End of namespace gfx
