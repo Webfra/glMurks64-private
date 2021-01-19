@@ -2,6 +2,8 @@
 
 namespace gfx {
 
+#if 0
+
 void Texture::load( char * buffer, GLenum unit, GLenum target, GLsizei width,
                     GLsizei height, GLint internalformat, GLenum format )
 {
@@ -28,5 +30,7 @@ void Texture::load( char * buffer, GLenum unit, GLenum target, GLsizei width,
     // Unbind the texture
     glBindTexture( tex_target, 0 );
 }
+
+#endif
 
 } // End of namespace gfx

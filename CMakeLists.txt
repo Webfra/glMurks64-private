@@ -7,19 +7,32 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable( ${target}
+
     source/main.cpp
     source/utils.h
     source/mainwindow.h
     source/mainwindow.cpp
-    source/graphics.h
-    source/graphics.cpp
-    source/texture.cpp
-    source/texture.h
-    source/text_screen.cpp
-    source/text_screen.h
-    text_screen.vert
-    text_screen.vsh
+
+    source/gfx/linmath.h
+
+    source/gfx/graphics.h
+    source/gfx/graphics.cpp
+    source/gfx/texture.cpp
+    source/gfx/texture.h
+    source/gfx/rectangle.cpp
+    source/gfx/rectangle.h
+    source/gfx/text_screen.cpp
+    source/gfx/text_screen.h
+    source/gfx/text_screen_shaders.vs
+    source/gfx/text_screen_shaders.gs
+    source/gfx/text_screen_shaders.fs
+
     )
+
+#-----------------------------------------------------------------
+
+target_include_directories( ${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/source )
+target_include_directories( ${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/source/gfx )
 
 #-----------------------------------------------------------------
 if( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")

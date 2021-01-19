@@ -11,13 +11,16 @@ namespace gfx {
 class Texture
 {
 public:
+#if 0
     void load( char * buffer, GLenum unit, GLenum target, GLint width, GLint height,
                GLint internalformat, GLenum format );
     //operator GLint() const { return texture_name; }
-    void bind() const {
+    void bind() const
+    {
         glActiveTexture( GL_TEXTURE0 + tex_unit );
         glBindTexture( tex_target, texture_name);
     }
+#endif
     void gl_Uniform( GLint location )
     {
         glUniform1i( location, tex_unit );
@@ -27,17 +30,25 @@ public:
         glGenTextures(1, &texture_name);
         return *this;
     }
-    Texture &unit( GLenum textureUnit = 0)
+    Texture &activate()
+    {
+        glActiveTexture( GL_TEXTURE0 + tex_unit);
+        return *this;
+    }
+    Texture &activate( GLenum textureUnit )
     {
         tex_unit = textureUnit;
-        glActiveTexture( GL_TEXTURE0 + tex_unit);
+        return activate();
+    }
+    Texture &bind()
+    {
+        glBindTexture( tex_target, texture_name );
         return *this;
     }
     Texture &bind( GLenum target )
     {
         tex_target = target;
-        glBindTexture( tex_target, texture_name );
-        return *this;
+        return bind();
     }
     Texture &iformat( GLint internalFormat = GL_RGB )
     {

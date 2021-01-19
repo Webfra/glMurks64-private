@@ -45,7 +45,7 @@ namespace utils {
         char exe_path[65536];
         memset(exe_path, 0, 65536);
     #if defined(__linux__)
-        readlink("/proc/self/exe", exe_path, 65535);
+        auto exe_size = readlink("/proc/self/exe", exe_path, 65535);
     #elif defined(_WIN32)
         (void)::GetModuleFileName(nullptr, exe_path, 65535);
     #else

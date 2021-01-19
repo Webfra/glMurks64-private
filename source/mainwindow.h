@@ -7,7 +7,7 @@
 #include <glad/glad.h>
 //======================================================================
 // Note: A SCALING of 8 means characters are 8x8 pixels in size.
-#define SCALING (8)
+#define SCALING (32)
 #define BORDER (20)
 #define SCREEN_WIDTH  (40*SCALING + BORDER*2)
 #define SCREEN_HEIGHT (25*SCALING + BORDER*2)
