@@ -115,11 +115,13 @@ void MainWindow::load_open_gl( GLADloadproc proc_address )
     printf("Vendor:   %s\n", glGetString(GL_VENDOR));
     printf("Renderer: %s\n", glGetString(GL_RENDERER));
     printf("Version:  %s\n", glGetString(GL_VERSION));
-    printf("Shader language: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION) );
+//    printf("Shader language: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION) );
 
+#if 0
     GLint maxVertUniformsVect;
     glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, &maxVertUniformsVect);
     std::cout << "Maximum uniform vectors: " << maxVertUniformsVect << std::endl;
+#endif
 
     fflush(stdout);
 #endif
@@ -130,7 +132,9 @@ bool MainWindow::on_event( SDL_Event & event )
 {
     switch( event.type )
     {
-    case SDL_QUIT: run = false; return true;
+    case SDL_QUIT:
+        run = false;
+        return true;
     case SDL_KEYDOWN: return on_keydown( event );
     case SDL_WINDOWEVENT: return on_window_event( event) ;
     }
@@ -142,6 +146,9 @@ bool MainWindow::on_keydown( SDL_Event & event )
 {
     switch( event.key.keysym.sym )
     {
+    case SDLK_ESCAPE:
+        close();
+        break;
     case SDLK_RETURN:
         if( (event.key.keysym.mod & KMOD_ALT) )
             toggle_fullscreen();
@@ -165,6 +172,12 @@ bool MainWindow::on_window_event( SDL_Event & event)
     {
     case SDL_WINDOWEVENT_SIZE_CHANGED:
         graphics.update_screen(event.window.data1, event.window.data2 );
+        return true;
+        break;
+    case SDL_WINDOWEVENT_RESIZED:
+        int w, h;
+        SDL_GetWindowSize( pWin, &w, &h );
+        graphics.update_screen(w,h); //event.window.data1, event.window.data2 );
         return true;
         break;
     }
@@ -195,7 +208,7 @@ void GLAPIENTRY MessageCallback(
     default:                                ctype = "** GL UNKNOWN **"; break;
     }
     //------------------------------------------------------------------
-#if 0
+#if 1 // Only show errors?
     if (type != GL_DEBUG_TYPE_ERROR ) return;
 #endif
     //------------------------------------------------------------------

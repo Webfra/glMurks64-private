@@ -15,12 +15,14 @@ public:
 
     void update_screen(int width, int height)
     {
+#if 1
         //------------------------------------------------------------------
         mat4x4 MVP;
         mat4x4_ortho( MVP, 0, width, height, 0, 1, -1 );
         //------------------------------------------------------------------
         glUseProgram( program_id );
         glUniformMatrix4fv( loc_MVP, 1, false, &MVP[0][0]);
+#endif
     }
 
 private:
@@ -35,6 +37,8 @@ private:
     GLint loc_pallette;
     GLint loc_bg_color;
     GLint loc_Offset;
+    GLint loc_scaling;
+    GLint loc_charset;
     GLuint vertex_array_id;
 };
 

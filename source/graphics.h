@@ -12,6 +12,8 @@ namespace gfx {
 
 GLuint compile_shader(GLenum type, const char * code );
 
+
+#if 0 // Just for testing...
 //========================================================================
 class Rectangle
 {
@@ -26,6 +28,7 @@ public:
     GLint loc_MVP;
     GLuint vertex_array_id;
 };
+#endif
 
 //========================================================================
 class Graphics
@@ -37,13 +40,16 @@ public:
     {
         //------------------------------------------------------------------
         glViewport(0, 0, width, height);
-        charset.update_screen(width, height);
+//        charset.update_screen(width, height);
         screen.update_screen(width, height);
     }
 private:
+#if 0 // Just for testing
     Texture texture;
-    text_screen screen;
     Rectangle charset;
+#endif
+
+    text_screen screen;
 };
 
 //========================================================================

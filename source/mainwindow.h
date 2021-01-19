@@ -6,8 +6,10 @@
 #include <SDL2/SDL.h>
 #include <glad/glad.h>
 //======================================================================
-#define SCREEN_WIDTH  (1024)
-#define SCREEN_HEIGHT  (786)
+#define SCALING (32)
+#define BORDER (60)
+#define SCREEN_WIDTH  (40*SCALING + BORDER*2)
+#define SCREEN_HEIGHT (25*SCALING + BORDER*2)
 //======================================================================
 class MainWindow
 {
@@ -15,6 +17,11 @@ public:
     MainWindow();
     ~MainWindow();
     void loop();
+    void close()
+    {
+        SDL_Event ev { SDL_QUIT };
+        SDL_PushEvent( &ev);
+    }
 
 private:
     SDL_Window *pWin;

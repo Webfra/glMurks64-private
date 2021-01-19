@@ -6,31 +6,6 @@
 
 namespace gfx {
 
-//------------------------------------------------------------------
-// A simple vertex shader for textured vertices.
-static const char *vxs =
-    "#version 330 core\n"
-    "uniform mat4 MVP;" // Model-View-Projection Matrix ("Camera")
-    "in vec3 vPos;"     // Input: Position of the vertex in 3D space.
-    "in vec2 tPos;"     // Input: Position of the vertex in the texture.
-    "out vec2 texcoord;"  // Output: Position of the vertex in the texture.
-    "void main()"       // Shader: Calculate screen coordinates of the
-    "{"                 // vertex from the 3D position.
-    "   gl_Position = MVP * vec4(vPos, 1);"
-    "   texcoord    = tPos;" // Texture coordinates are just passed through unchanged.
-    "}";
-
-//------------------------------------------------------------------
-// The fragment shader of the textured triangles to draw.
-static const char *fts =
-    "#version 330 core\n"
-    "uniform sampler2D TEX;" // Defines which texture to use.
-    "in vec2 texcoord;"     // Input: The texture coordinates of the pixel.
-    "out vec4 FragColor;"   // Output: The calculated color of the pixel.
-    "void main()" // Shader: Look up the color of the pixel in the
-    "{"           // texture bitmap.
-    "    FragColor = vec4( texture2D( TEX, texcoord ) );"
-    "}";
 
 //------------------------------------------------------------------
 GLuint compile_shader(GLenum type, const char * code )
@@ -57,7 +32,7 @@ GLuint compile_shader(GLenum type, const char * code )
 }
 
 //------------------------------------------------------------------
-GLuint link_program( GLuint vxs_id, GLuint fts_id )
+GLuint link_program2( GLuint vxs_id, GLuint fts_id )
 {
     //------------------------------------------------------------------
     // A buffer for holding messages from linking the program.
@@ -80,6 +55,35 @@ GLuint link_program( GLuint vxs_id, GLuint fts_id )
     }
     return program_id;
 }
+
+#if 0 // Just for testing...
+
+
+//------------------------------------------------------------------
+// A simple vertex shader for textured vertices.
+static const char *vxs =
+    "#version 330 core\n"
+    "uniform mat4 MVP;" // Model-View-Projection Matrix ("Camera")
+    "in vec3 vPos;"     // Input: Position of the vertex in 3D space.
+    "in vec2 tPos;"     // Input: Position of the vertex in the texture.
+    "out vec2 texcoord;"  // Output: Position of the vertex in the texture.
+    "void main()"       // Shader: Calculate screen coordinates of the
+    "{"                 // vertex from the 3D position.
+    "   gl_Position = MVP * vec4(vPos, 1);"
+    "   texcoord    = tPos;" // Texture coordinates are just passed through unchanged.
+    "}";
+
+//------------------------------------------------------------------
+// The fragment shader of the textured triangles to draw.
+static const char *fts =
+    "#version 330 core\n"
+    "uniform sampler2D TEX;" // Defines which texture to use.
+    "in vec2 texcoord;"     // Input: The texture coordinates of the pixel.
+    "out vec4 FragColor;"   // Output: The calculated color of the pixel.
+    "void main()" // Shader: Look up the color of the pixel in the
+    "{"           // texture bitmap.
+    "    FragColor = vec4( texture2D( TEX, texcoord ) );"
+    "}";
 
 //========================================================================
 // Definition of a single vertex of the textured rectangle.
@@ -202,8 +206,12 @@ void prepare_charset( uint8_t char_rom[], GLchar image[128][128] )
     }
 }
 
+#endif // Just for testing
+
+//========================================================================
 void Graphics::init()
 {
+#if 0 // Just for testing
     GLchar image[128][128];
     auto chargen { utils::RM.load("roms/chargen") };
     prepare_charset( (uint8_t*)chargen.data(), image );
@@ -214,9 +222,12 @@ void Graphics::init()
             .Image2D(&image[0][0])
             .unbind();
     charset.init( &texture, 256, 256, 256, 256);
+#endif // Just for testing
 
     screen.init();
 }
+
+extern std::array<vec3, 16> color_table;
 
 void Graphics::render()
 {
@@ -227,10 +238,12 @@ void Graphics::render()
     glDisable(GL_CULL_FACE);
     //------------------------------------------------------------------
     // Define the background color
-    glClearColor(0.1f, 0.3f, 0.5f, 0.0f);
+    glClearColor(color_table[14][0], color_table[14][1], color_table[14][2], 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     //------------------------------------------------------------------
+#if 0 // Just for testing
     charset.render();
+#endif
     screen.render();
 }
 
