@@ -118,7 +118,7 @@ static const char *fts =
 
     "uniform isampler2D TEX;\n"        // character generator ROM.
     "uniform int background_color;\n"  // global screen background color.
-    "uniform vec3 pallette[16];\n"     // The 16 colors.
+    "uniform vec3 palette[16];\n"     // The 16 colors.
     "uniform int charset;\n"           // Selects which character set to use (0 or 1)
 
     "in vec2 texcoord;\n"           // The interpolated texture coordinate.
@@ -139,8 +139,8 @@ static const char *fts =
 
     "   float f  = float(((byte>>(7-bit))&1)) * 1.0f;\n"
 
-    "   vec4 fg_col = vec4( pallette[fg_col_gs], 1);\n"
-    "   vec4 bg_col = vec4( pallette[background_color], 1);\n"
+    "   vec4 fg_col = vec4( palette[fg_col_gs], 1);\n"
+    "   vec4 bg_col = vec4( palette[background_color], 1);\n"
 
     "   FragColor = mix( bg_col, fg_col, f);\n"
 
@@ -239,7 +239,7 @@ void text_screen::init()
     loc_TEX =      glGetUniformLocation( program_id, "TEX"  );
     loc_CHARS =    glGetUniformLocation( program_id, "CHARS"  );
     loc_COLOR =    glGetUniformLocation( program_id, "COLOR"  );
-    loc_pallette = glGetUniformLocation( program_id, "pallette"  );
+    loc_palette =  glGetUniformLocation( program_id, "palette"  );
     loc_bg_color = glGetUniformLocation( program_id, "background_color"  );
     loc_Offset =   glGetUniformLocation( program_id, "TextOffset");
     loc_scaling =  glGetUniformLocation( program_id, "scaling"  );
@@ -260,7 +260,7 @@ void text_screen::init()
 
     //------------------------------------------------------------------
     // Set the palette
-    glUniform3fv( loc_pallette, sizeof(vec3[16]), &color_table.data()[0][0] );
+    glUniform3fv( loc_palette, sizeof(vec3[16]), &color_table.data()[0][0] );
 
     //------------------------------------------------------------------
     // Create a vertex attribute array and bind it.
