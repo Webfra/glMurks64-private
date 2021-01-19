@@ -286,8 +286,8 @@ void text_screen::init()
 //======================================================================
 void text_screen::render()
 {
-    screen.bind( );
-    colram.bind( );
+    screen.bind();
+    colram.bind();
     chrgen.bind();
 
     glUseProgram( program_id );
