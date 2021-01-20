@@ -7,6 +7,29 @@
 namespace gfx {
 
 //========================================================================
+std::array<ivec3, 16> color_table { {
+    // Taken from the screenshot of the C64-wiki.com
+    // https://www.c64-wiki.com/wiki/color
+    // Note: The values in the table on the same site are different!
+    {    0,    0,    0 }, //  0  Black
+    {  255,  255,  255 }, //  1  White
+    {  146,   74,   64 }, //  2  Red
+    {  132,  197,  204 }, //  3  Cyan
+    {  147,   81,  182 }, //  4  Violet
+    {  114,  177,   75 }, //  5  Green
+    {   72,   58,  170 }, //  6  Blue
+    {  213,  223,  124 }, //  7  Yellow
+    {  103,   82,    0 }, //  8  Orange
+    {   87,   66,    0 }, //  9  Brown
+    {  193,  129,  120 }, // 10  Light Red
+    {   96,   96,   96 }, // 11  Dark Grey
+    {  138,  138,  138 }, // 12  Grey
+    {  179,  236,  145 }, // 13  Light Green
+    {  134,  122,  222 }, // 14  Light Blue
+    {  179,  179,  179 }  // 15  Light Grey
+} };
+
+//========================================================================
 GLuint compile_shader(GLenum type, const char * code )
 {
     //------------------------------------------------------------------
@@ -91,6 +114,44 @@ void prepare_charset( uint8_t char_rom[], GLchar image[128][128] )
 }
 
 //========================================================================
+// Calculate a rectangle such, that if "org" matches "org_aspect",
+// then the resulting rectangle matches "target_aspect" (with the same "scaling factor".)
+// Note that "org" doesn't have to have the "org_aspect".
+// (That's the mentioned "scaling factor".)
+// Eg. We have a texture to be rendered on the screen with aspect ratio 1.4.
+// The default Open GL coordinate system places (-1,-1) at the lower left corner
+// of the screen and (+1,+1) at the upper right corner of the screen (independent
+// of the real aspect ratio of the screen.)
+// If the screen has 1920x1080 resolution (aspect ratio of about 1.78) then
+// a fullscreen rendering of the texture would distort it.
+// So the width of the Open GL coordinate system should be slightly extended by
+// the factor 1.78 / 1.4 = 1.26.
+// To get this, call the adapt_aspect like this:
+// auto result = adapt_aspect( { -1, -1, 2, 2 }, 1.78, 1.4)
+// The resulting rectangle can be given to mat4x4_ortho() to create an according
+// projection matrix. But note that adapt_aspect() works with width and height, while
+// mat4v4_ortho() works with x1/y1 and x2/y2...
+template<typename T>
+Rect2D<T> adapt_aspect( const Rect2D<T> &org, T target_aspect, T org_aspect)
+{
+    // --------------------------------------------------------------
+    // rst ("result") will be the modified coordinates.
+    Rect2D<T> rst { org };
+    // Scale either width or height, so that the other extends the full window.
+    if( target_aspect > org_aspect )
+    {
+        rst.w = org.h * (target_aspect / org_aspect);
+        rst.x = org.x + (org.w - rst.w) / 2;
+    }
+    else
+    {
+        rst.h = org.w / (target_aspect / org_aspect);
+        rst.y = org.y + (org.h - rst.h) / 2;
+    }
+    return rst;
+}
+
+//========================================================================
 void Graphics::init()
 {
     // Prepare the texture data from the character ROM
@@ -123,8 +184,6 @@ void Graphics::init()
 //========================================================================
 void Graphics::render()
 {
-    //std::cout << "--- Start Renderloop ---" << std::endl;
-
     //------------------------------------------------------------------
     // Set up the framebuffer for rendering INTO it.
     frame.activate();
@@ -149,6 +208,8 @@ void Graphics::render()
     //------------------------------------------------------------------
     frame.deactivate();
     glViewport(0,0, m_Width, m_Height);
+    glClearColor( 0,0,0, 0.0f);
+
 
     //------------------------------------------------------------------
     frame.render(); // Render the frame buffer on the screen.
@@ -157,7 +218,7 @@ void Graphics::render()
 //========================================================================
 void Graphics::resize_screen(int width, int height)
 {
-    //glViewport(0, 0, width, height); // Correct viewports will be set during rendering.
+    //------------------------------------------------------------------
     m_Width = width;
     m_Height = height;
     //------------------------------------------------------------------

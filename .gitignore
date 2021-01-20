@@ -75,3 +75,5 @@ Thumbs.db
 # VS code
 .vscode
 build
+
+renderdoc*.cap

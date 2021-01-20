@@ -13,29 +13,6 @@
 namespace gfx {
 
 //========================================================================
-std::array<ivec3, 16> color_table { {
-    // Taken from the screenshot of the C64-wiki.com
-    // https://www.c64-wiki.com/wiki/color
-    // Note: The values in the table on the same site are different!
-    {    0,    0,    0 }, //  0  Black
-    {  255,  255,  255 }, //  1  White
-    {  146,   74,   64 }, //  2  Red
-    {  132,  197,  204 }, //  3  Cyan
-    {  147,   81,  182 }, //  4  Violet
-    {  114,  177,   75 }, //  5  Green
-    {   72,   58,  170 }, //  6  Blue
-    {  213,  223,  124 }, //  7  Yellow
-    {  103,   82,    0 }, //  8  Orange
-    {   87,   66,    0 }, //  9  Brown
-    {  193,  129,  120 }, // 10  Light Red
-    {   96,   96,   96 }, // 11  Dark Grey
-    {  138,  138,  138 }, // 12  Grey
-    {  179,  236,  145 }, // 13  Light Green
-    {  134,  122,  222 }, // 14  Light Blue
-    {  179,  179,  179 }  // 15  Light Grey
-} };
-
-//========================================================================
 // A vertex shader for the text screen.
 static const char *vxs =
 #include "text_screen_shaders.vs"
@@ -121,7 +98,7 @@ void text_screen::init()
     // Set some defaults of the shader uniforms
     glUseProgram( program_id );
 
-    glUniform2f( loc_Offset, BORDER, BORDER );
+    glUniform2f( loc_Offset, 64/2, 72/2 );
     glUniform1f( loc_scaling, SCALING); // keep it power of 2, or it may look ugly.
     glUniform1i( loc_charset, 0);
     glUniform1i( loc_bg_color, 6);

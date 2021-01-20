@@ -57,7 +57,7 @@ MainWindow::MainWindow()
     load_open_gl(SDL_GL_GetProcAddress);
     //------------------------------------------------------------------
     // Enable vsync. (Optional)
-    SDL_GL_SetSwapInterval(0);
+    SDL_GL_SetSwapInterval(1);
     //------------------------------------------------------------------
     graphics.init();
     //------------------------------------------------------------------
@@ -87,6 +87,10 @@ void MainWindow::loop()
         {
             on_event( event );
         }
+        //------------------------------------------------------------------
+        int w, h;
+        SDL_GetWindowSize( pWin, &w, &h );
+        graphics.resize_screen(w,h); //event.window.data1, event.window.data2 );
         //------------------------------------------------------------------
         // TODO: Render here
         glClear( GL_COLOR_BUFFER_BIT );
@@ -163,6 +167,11 @@ void MainWindow::toggle_fullscreen()
     auto flags { SDL_GetWindowFlags(pWin) & SDL_WINDOW_FULLSCREEN_DESKTOP};
     flags ^= SDL_WINDOW_FULLSCREEN_DESKTOP;
     SDL_SetWindowFullscreen(pWin, flags);
+
+    int w, h;
+    SDL_GetWindowSize( pWin, &w, &h );
+    graphics.resize_screen(w,h); //event.window.data1, event.window.data2 );
+
 }
 
 //======================================================================
