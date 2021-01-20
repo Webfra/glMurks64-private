@@ -7,10 +7,10 @@
 namespace gfx {
 
 //========================================================================
+// C64 color table. Taken from the screenshot of the C64-wiki.com
+// https://www.c64-wiki.com/wiki/color
+// Note: The values in the table on the same site are different!
 std::array<ivec3, 16> color_table { {
-    // Taken from the screenshot of the C64-wiki.com
-    // https://www.c64-wiki.com/wiki/color
-    // Note: The values in the table on the same site are different!
     {    0,    0,    0 }, //  0  Black
     {  255,  255,  255 }, //  1  White
     {  146,   74,   64 }, //  2  Red
@@ -118,7 +118,8 @@ void prepare_charset( uint8_t char_rom[], GLchar image[128][128] )
 // then the resulting rectangle matches "target_aspect" (with the same "scaling factor".)
 // Note that "org" doesn't have to have the "org_aspect".
 // (That's the mentioned "scaling factor".)
-// Eg. We have a texture to be rendered on the screen with aspect ratio 1.4.
+// --------------------------------------------------------------
+// Eg. We have a texture with aspect ratio 1.4 to be rendered on the screen.
 // The default Open GL coordinate system places (-1,-1) at the lower left corner
 // of the screen and (+1,+1) at the upper right corner of the screen (independent
 // of the real aspect ratio of the screen.)
@@ -142,9 +143,7 @@ Rect2D<T> adapt_aspect( const Rect2D<T> &org, T target_aspect, T org_aspect)
     {
         rst.w = org.h * (target_aspect / org_aspect);
         rst.x = org.x + (org.w - rst.w) / 2;
-    }
-    else
-    {
+    } else {
         rst.h = org.w / (target_aspect / org_aspect);
         rst.y = org.y + (org.h - rst.h) / 2;
     }
@@ -154,31 +153,27 @@ Rect2D<T> adapt_aspect( const Rect2D<T> &org, T target_aspect, T org_aspect)
 //========================================================================
 void Graphics::init()
 {
+    frame.init(384, 272);
+
     // Prepare the texture data from the character ROM
     GLchar image[128][128];
     auto chargen { utils::RM.load("roms/chargen") };
-    prepare_charset( (uint8_t*)chargen.data(), image );
-
-    // Create an OpenGL texture from the image.
-    charset.tex.gen().activate(0).bind(GL_TEXTURE_2D)
-
-        .iformat(GL_R8).size(128,128).format(GL_RED).type(GL_UNSIGNED_BYTE).Image2D(&image[0][0])
-    
-        .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP)
-        .Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
-        
-        .Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-        .Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-        
-        .unbind();
-    
-    // Create the OpenGL Rectangle.
-    charset.init( 532, 20, 512, 512);
 
     // Initialize the text screen.
-    screen.init();
+    screen.init( chargen );
 
-    frame.init(384, 272);
+    // Create an OpenGL texture from the image.
+    prepare_charset( (uint8_t*)chargen.data(), image );
+    charset.tex.gen().activate(0).bind(GL_TEXTURE_2D)
+        .iformat(GL_R8).size(128,128).format(GL_RED).type(GL_UNSIGNED_BYTE).Image2D(&image[0][0])
+        .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP)
+        .Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
+        .Pi(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        .Pi(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+        .unbind();
+    // Create the OpenGL Rectangle.
+    charset.init( 20, 20, 128, 128);
+
 }
 
 //========================================================================
@@ -187,6 +182,7 @@ void Graphics::render()
     //------------------------------------------------------------------
     // Set up the framebuffer for rendering INTO it.
     frame.activate();
+    //------------------------------------------------------------------
 
     //------------------------------------------------------------------
     // Disable depth test and face culling.
@@ -195,23 +191,23 @@ void Graphics::render()
 
     //------------------------------------------------------------------
     // Define the border color.
-#if 1
-    glClearColor( color_table[14][0]/255.0f, 
-                  color_table[14][1]/255.0f, 
-                  color_table[14][2]/255.0f, 0.0f);
-#endif
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glClearColor( color_table[14][0] / 255.0f, 
+                  color_table[14][1] / 255.0f, 
+                  color_table[14][2] / 255.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     screen.render();
     //charset.render();
 
     //------------------------------------------------------------------
+    // Deactivate the framebuffer to enable rendering to the screen.
     frame.deactivate();
-    glViewport(0,0, m_Width, m_Height);
-    glClearColor( 0,0,0, 0.0f);
-
+    //------------------------------------------------------------------
 
     //------------------------------------------------------------------
+    // Render the framebuffer to the screen.
+    glViewport(0,0, m_Width, m_Height);
+    glClearColor( 0,0,0, 0.0f);
     frame.render(); // Render the frame buffer on the screen.
 }
 
@@ -219,10 +215,14 @@ void Graphics::render()
 void Graphics::resize_screen(int width, int height)
 {
     //------------------------------------------------------------------
+    // Framebuffer renders to the screen, so it must be adjusted to
+    // the screen size.
     m_Width = width;
     m_Height = height;
-    //------------------------------------------------------------------
     frame.resize_screen   ( width, height );
+    //------------------------------------------------------------------
+    // Everything else renders to the framebuffer, so it must be 
+    // adjusted to the framebuffer size.
     charset.resize_screen ( frame.Rect.tex.width(), frame.Rect.tex.height() );
     screen.resize_screen  ( frame.Rect.tex.width(), frame.Rect.tex.height() );
     //------------------------------------------------------------------

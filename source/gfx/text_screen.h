@@ -2,7 +2,7 @@
 #define TEXT_SCREEN_H
 
 #include "texture.h"
-
+#include "utils.h"
 #include "linmath.h"
 
 //======================================================================
@@ -13,7 +13,7 @@ class text_screen
 {
 public:
     //======================================================================
-    void init();
+    void init( utils::Buffer &CG );
     void render();
     void resize_screen(int width, int height);
     void update_memories( uint8_t new_chars[1000], uint8_t new_colrs[1000] );

@@ -59,22 +59,29 @@ public:
         // --------------------------------------------------------------
     }
     //========================================================================
+    // Activate the Framebuffer, so that following draw calls go on the 
+    // Framebuffer, not on the screen.
     void activate()
     {
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_name);
         glViewport( 0,0, Rect.tex.width(), Rect.tex.height() );
     }
     //========================================================================
+    // Deactivate the Framebuffer, draw calls go to the screen again.
     void deactivate()
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     //========================================================================
+    // Render the content of the Framebuffer (on the screen).
     void render()
     {
         Rect.render();
     }
     //========================================================================
+    // React to changes of the screen size. 
+    // Keep the Framebuffer maximized on the screen, but keep its 
+    // aspect ratio intact.
     void resize_screen(int width, int height)
     {
         // --------------------------------------------------------------
@@ -89,24 +96,20 @@ public:
         target_aspect /= float(screen_stretch);
 
         // --------------------------------------------------------------
-        // The shader that renders the framebuffer on the screen also needs
+        // The shader that renders the framebuffer on the screen needs
         // to be adjusted to keep the real aspect ratio.
-        {
-            // --------------------------------------------------------------
-            // Screen coordinates expected by the shader.
-            gfx::Rect2D<float> org { 0,0,1,1 };
-            // modified screen coordinates
-            auto rst { gfx::adapt_aspect<float>(org, window_aspect, target_aspect) };
-            mat4x4 FB_MVP;
-            mat4x4_ortho(FB_MVP,
-                         float(rst.x), float(rst.x + rst.w),
-                         float(rst.y), float(rst.y + rst.h),
-                         1.0f, -1.0f);
-            // --------------------------------------------------------------
-            Rect.SetMVP( FB_MVP );
-            // --------------------------------------------------------------
-        }
-
+        // --------------------------------------------------------------
+        // Screen coordinates expected by the shader.
+        gfx::Rect2D<float> org { 0,0,1,1 };
+        // modified screen coordinates
+        auto rst { gfx::adapt_aspect<float>(org, window_aspect, target_aspect) };
+        mat4x4 MVP;
+        mat4x4_ortho(MVP, float(rst.x), float(rst.x + rst.w),
+                          float(rst.y), float(rst.y + rst.h),
+                          1.0f, -1.0f);
+        // --------------------------------------------------------------
+        Rect.SetMVP( MVP );
+        // --------------------------------------------------------------
     }
     //========================================================================
     Rectangle Rect; // Provides a texture and a rectangle shader for drawing the framebuffer on the screen.

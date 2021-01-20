@@ -28,7 +28,7 @@ static const char *fts =
 
 //========================================================================
 // Setup the text screen objects;
-void text_screen::init()
+void text_screen::init( utils::Buffer &CG )
 {
     //------------------------------------------------------------------
     // Clear the buffers.
@@ -65,7 +65,7 @@ void text_screen::init()
 
     //------------------------------------------------------------------
     // Set up the texture to hold the character generator ROM.
-    auto CG { utils::RM.load("roms/chargen") };
+    //auto CG { utils::RM.load("roms/chargen") };
     chrgen.gen().activate(2).bind(GL_TEXTURE_2D).size(8,512)
         .iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE)
         .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
@@ -136,9 +136,11 @@ void text_screen::render()
 {
     //------------------------------------------------------------------
     // TEMPORARY TEST: CHANGE SCREEN CHARACTERS
+    #if 0
     chars[0]++;
     colrs[1]++;
     update_memories( chars, colrs );
+    #endif
     //------------------------------------------------------------------
     // Activate the texture units and bind the texture buffers
     // as defined at initialization.
