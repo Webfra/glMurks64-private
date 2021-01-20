@@ -37,7 +37,7 @@ namespace utils {
     Buffer Resource::load( const std::string & filename )
     {
         path full_path = resource_folder / filename;
-        return Buffer( full_path );
+        return Buffer( full_path.string() );
     }
     //======================================================================
     path Resource::get_exe_path()
