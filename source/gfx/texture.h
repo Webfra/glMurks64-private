@@ -10,15 +10,23 @@
 //========================================================================
 namespace gfx {
 
+//========================================================================
+// Simple abstaction layer over OpenGL Textures.
+// Provides a fluent interface.
 class Texture
 {
 public:
+    //========================================================================
     Texture() = default;
     NO_COPY( Texture );
     NO_MOVE( Texture );
     virtual ~Texture() { del(); }
 
-    void gl_Uniform( GLint location );          // glUniform1i()
+    operator GLuint() { return texture_name; }
+
+    // glUniform1i() - provides the texture unit defined in activate() 
+    // to the uniform sampler2D location given here. 
+    void gl_Uniform( GLint location );          
     
     Texture &gen();                             // glGenTextures()
     
@@ -40,6 +48,9 @@ public:
 
     void del() { glDeleteTextures(1, &texture_name); }
 
+    GLsizei width() { return tex_width; }
+    GLsizei height() { return tex_height; }
+
 private:
     GLuint texture_name { 0 };
 
@@ -57,6 +68,8 @@ private:
     GLint    tex_type { GL_UNSIGNED_BYTE };
 };
 
+//========================================================================
 } // End of namespace gfx
 
+//========================================================================
 #endif // TEXTURE_H

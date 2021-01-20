@@ -61,8 +61,6 @@ void Rectangle::init(GLfloat x, GLfloat y, GLfloat w, GLfloat h )
     GLint loc_tPos = glGetAttribLocation( program_id, "tPos" );
     loc_TEX = glGetUniformLocation( program_id, "TEX"  );
     loc_MVP = glGetUniformLocation( program_id, "MVP"  );
-    glUseProgram( program_id );
-    glUniform1i(loc_TEX, 0);     // Texture unit 0 is for base images
     //------------------------------------------------------------------
     // Create a vertex attribute array and bind it.
     glGenVertexArrays(1, &vertex_array_id);
@@ -91,11 +89,15 @@ void Rectangle::init(GLfloat x, GLfloat y, GLfloat w, GLfloat h )
     };
     //------------------------------------------------------------------
     // Upload the vertices to the vertex buffer.
-    glBufferData( GL_ARRAY_BUFFER, 4*sizeof(TexRectVertex), &vertices[0], GL_DYNAMIC_DRAW );
+    glBufferData( GL_ARRAY_BUFFER, sizeof(vertices), &vertices[0], GL_DYNAMIC_DRAW );
     //------------------------------------------------------------------
     // Unbind the vertex attribute array and the vertex buffer.
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+    //------------------------------------------------------------------
+    // Shaders can be marked for deletion already.
+    glDeleteShader( shader_id_vxs );
+    glDeleteShader( shader_id_fts );
     //------------------------------------------------------------------
 }
 
@@ -103,14 +105,17 @@ void Rectangle::init(GLfloat x, GLfloat y, GLfloat w, GLfloat h )
 void Rectangle::render()
 {
     //------------------------------------------------------------------
+    // Activate the drawing shader program.
+    glUseProgram(program_id);
+
+    //------------------------------------------------------------------
     // Activate and bind the texture.
-    tex.activate().bind();
+    tex.activate().bind().gl_Uniform( loc_TEX );
 
     //------------------------------------------------------------------
     // Draw the vertices.
-    glUseProgram(program_id);
     glBindVertexArray(vertex_array_id);
-    glDrawArrays( GL_TRIANGLE_STRIP, 0, 4);
+    glDrawArrays( GL_TRIANGLE_STRIP, 0, 4); // 4 = number of the vertices array in init()...
 }
 
 //========================================================================

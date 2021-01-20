@@ -99,11 +99,16 @@ void Graphics::init()
     prepare_charset( (uint8_t*)chargen.data(), image );
 
     // Create an OpenGL texture from the image.
-    charset.tex.gen().activate(0).bind(GL_TEXTURE_2D).size(128,128)
-        .iformat(GL_R8).format(GL_RED).type(GL_UNSIGNED_BYTE)
-        .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
-        .Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-        .Image2D(&image[0][0])
+    charset.tex.gen().activate(0).bind(GL_TEXTURE_2D)
+
+        .iformat(GL_R8).size(128,128).format(GL_RED).type(GL_UNSIGNED_BYTE).Image2D(&image[0][0])
+    
+        .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP)
+        .Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
+        
+        .Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        .Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        
         .unbind();
     
     // Create the OpenGL Rectangle.
@@ -111,34 +116,55 @@ void Graphics::init()
 
     // Initialize the text screen.
     screen.init();
+
+    frame.init(384, 272);
 }
 
 //========================================================================
 void Graphics::render()
 {
     //std::cout << "--- Start Renderloop ---" << std::endl;
+
+    //------------------------------------------------------------------
+    // Set up the framebuffer for rendering INTO it.
+    frame.activate();
+
     //------------------------------------------------------------------
     // Disable depth test and face culling.
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
+
     //------------------------------------------------------------------
     // Define the border color.
+#if 1
     glClearColor( color_table[14][0]/255.0f, 
                   color_table[14][1]/255.0f, 
                   color_table[14][2]/255.0f, 0.0f);
+#endif
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    //------------------------------------------------------------------
+
     screen.render();
-    charset.render();
+    //charset.render();
+
+    //------------------------------------------------------------------
+    frame.deactivate();
+    glViewport(0,0, m_Width, m_Height);
+
+    //------------------------------------------------------------------
+    frame.render(); // Render the frame buffer on the screen.
 }
 
 //========================================================================
 void Graphics::resize_screen(int width, int height)
 {
+    //glViewport(0, 0, width, height); // Correct viewports will be set during rendering.
+    m_Width = width;
+    m_Height = height;
     //------------------------------------------------------------------
-    glViewport(0, 0, width, height);
-    charset.resize_screen( width, height);
-    screen.resize_screen(width, height);
+    frame.resize_screen   ( width, height );
+    charset.resize_screen ( frame.Rect.tex.width(), frame.Rect.tex.height() );
+    screen.resize_screen  ( frame.Rect.tex.width(), frame.Rect.tex.height() );
+    //------------------------------------------------------------------
 }
 
 //========================================================================
