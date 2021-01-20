@@ -57,7 +57,7 @@ MainWindow::MainWindow()
     load_open_gl(SDL_GL_GetProcAddress);
     //------------------------------------------------------------------
     // Enable vsync. (Optional)
-    SDL_GL_SetSwapInterval(1);
+    SDL_GL_SetSwapInterval(0);
     //------------------------------------------------------------------
     graphics.init();
     //------------------------------------------------------------------
@@ -65,7 +65,7 @@ MainWindow::MainWindow()
     // Must be done whenever the window/screen size changes...
     int width, height;
     SDL_GetWindowSize(pWin, &width, &height);
-    graphics.update_screen(width, height);
+    graphics.resize_screen(width, height);
     //------------------------------------------------------------------
 }
 
@@ -171,13 +171,13 @@ bool MainWindow::on_window_event( SDL_Event & event)
     switch( event.window.type )
     {
     case SDL_WINDOWEVENT_SIZE_CHANGED:
-        graphics.update_screen(event.window.data1, event.window.data2 );
+        graphics.resize_screen(event.window.data1, event.window.data2 );
         return true;
         break;
     case SDL_WINDOWEVENT_RESIZED:
         int w, h;
         SDL_GetWindowSize( pWin, &w, &h );
-        graphics.update_screen(w,h); //event.window.data1, event.window.data2 );
+        graphics.resize_screen(w,h); //event.window.data1, event.window.data2 );
         return true;
         break;
     }

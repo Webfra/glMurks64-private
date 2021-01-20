@@ -30,7 +30,7 @@ static const char *fts =
     "out vec4 FragColor;"   // Output: The calculated color of the pixel.
     "void main()" // Shader: Look up the color of the pixel in the
     "{"           // texture bitmap.
-    "    FragColor = vec4( texture2D( TEX, texcoord ) );"
+    "    FragColor = vec4( texture( TEX, texcoord ) );"
     "}";
 
 //========================================================================
@@ -61,6 +61,8 @@ void Rectangle::init(GLfloat x, GLfloat y, GLfloat w, GLfloat h )
     GLint loc_tPos = glGetAttribLocation( program_id, "tPos" );
     loc_TEX = glGetUniformLocation( program_id, "TEX"  );
     loc_MVP = glGetUniformLocation( program_id, "MVP"  );
+    glUseProgram( program_id );
+    glUniform1i(loc_TEX, 0);     // Texture unit 0 is for base images
     //------------------------------------------------------------------
     // Create a vertex attribute array and bind it.
     glGenVertexArrays(1, &vertex_array_id);
@@ -82,10 +84,10 @@ void Rectangle::init(GLfloat x, GLfloat y, GLfloat w, GLfloat h )
     float z=0;
     TexRectVertex vertices[4] =
     {
-        { x,   y+h, z,    0, 1 },
-        { x+w, y+h, z,    1, 1 },
         { x,   y,   z,    0, 0 },
+        { x,   y+h, z,    0, 1 },
         { x+w, y,   z,    1, 0 },
+        { x+w, y+h, z,    1, 1 },
     };
     //------------------------------------------------------------------
     // Upload the vertices to the vertex buffer.
@@ -101,16 +103,18 @@ void Rectangle::init(GLfloat x, GLfloat y, GLfloat w, GLfloat h )
 void Rectangle::render()
 {
     //------------------------------------------------------------------
-    // Activate the shader program
-    glUseProgram(program_id);
-    glUniform1i(loc_TEX, 0);     // Texture unit 0 is for base images
+    // Activate and bind the texture.
     tex.activate().bind();
+
+    //------------------------------------------------------------------
+    // Draw the vertices.
+    glUseProgram(program_id);
     glBindVertexArray(vertex_array_id);
     glDrawArrays( GL_TRIANGLE_STRIP, 0, 4);
 }
 
 //========================================================================
-void Rectangle::update_screen(int width, int height)
+void Rectangle::resize_screen(int width, int height)
 {
     //------------------------------------------------------------------
     mat4x4 MVP;

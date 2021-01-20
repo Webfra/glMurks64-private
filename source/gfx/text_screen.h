@@ -16,7 +16,7 @@ public:
     void init();
     void render();
     void resize_screen(int width, int height);
-    void update_memories( uint8_t new_chars[1000] );
+    void update_memories( uint8_t new_chars[1000], uint8_t new_colrs[1000] );
 
 private:
     //======================================================================
@@ -40,7 +40,7 @@ private:
     //======================================================================
     uint8_t chars[1000];    // A buffer representing the text screen.
     uint8_t colrs[1000];    // A buffer representing the color memory.    
-    vec2   coords[1000];    // A buffer holding the screen coordinates (0-39,0-24) of each character.
+    ::vec2 coords[1000];    // A buffer holding the screen coordinates (0-39,0-24) of each character.
 
 };
 

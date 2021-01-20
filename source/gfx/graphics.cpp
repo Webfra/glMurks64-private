@@ -120,19 +120,25 @@ void Graphics::render()
     //------------------------------------------------------------------
     // Disable depth test and face culling.
     glDisable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+    glDisable(GL_CULL_FACE);
+    //------------------------------------------------------------------
+    // Define the border color.
+    glClearColor( color_table[14][0]/255.0f, 
+                  color_table[14][1]/255.0f, 
+                  color_table[14][2]/255.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     //------------------------------------------------------------------
     screen.render();
     charset.render();
 }
 
 //========================================================================
-void Graphics::update_screen(int width, int height)
+void Graphics::resize_screen(int width, int height)
 {
     //------------------------------------------------------------------
     glViewport(0, 0, width, height);
-    charset.update_screen( width, height);
-    screen.update_screen(width, height);
+    charset.resize_screen( width, height);
+    screen.resize_screen(width, height);
 }
 
 //========================================================================

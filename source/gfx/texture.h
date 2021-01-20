@@ -2,8 +2,10 @@
 #define TEXTURE_H
 
 #include <glad/glad.h>
-
 #include <cassert>
+
+#define NO_COPY(cls) cls(const cls&) = delete; cls & operator=(const cls&) = delete
+#define NO_MOVE(cls) cls(cls&&) = delete; cls & operator=(cls&&) = delete
 
 //========================================================================
 namespace gfx {
@@ -11,6 +13,11 @@ namespace gfx {
 class Texture
 {
 public:
+    Texture() = default;
+    NO_COPY( Texture );
+    NO_MOVE( Texture );
+    virtual ~Texture() { del(); }
+
     void gl_Uniform( GLint location );          // glUniform1i()
     
     Texture &gen();                             // glGenTextures()
@@ -31,17 +38,23 @@ public:
     
     void unbind();                              // glBindTexture(0)
 
+    void del() { glDeleteTextures(1, &texture_name); }
+
 private:
-    GLuint texture_name { GL_INVALID_VALUE };
-    GLenum tex_unit { GL_TEXTURE0 };
+    GLuint texture_name { 0 };
+
+    GLenum tex_unit {  0 /*GL_TEXTURE0*/ };
+    
     GLenum tex_target { GL_TEXTURE_2D };
-    GLint  tex_level {0};
-    GLint  tex_internalFormat { GL_RGB };
+    
+    // The following member store the values to be used by Image2D()
+    GLint    tex_level {0};
+    GLint    tex_internalFormat { GL_RGB };
     GLsizei  tex_width {-1};
     GLsizei  tex_height {-1};
-    GLint tex_border {0};
-    GLint tex_format { GL_RGB };
-    GLint tex_type { GL_UNSIGNED_BYTE };
+    GLint    tex_border {0};
+    GLint    tex_format { GL_RGB };
+    GLint    tex_type { GL_UNSIGNED_BYTE };
 };
 
 } // End of namespace gfx

@@ -160,13 +160,8 @@ void text_screen::render()
     //------------------------------------------------------------------
     // TEMPORARY TEST: CHANGE SCREEN CHARACTERS
     chars[0]++;
-    update_memories( chars );
-    //------------------------------------------------------------------
-    // Define the background color.
-    glClearColor( color_table[14][0]/255.0f, 
-                  color_table[14][1]/255.0f, 
-                  color_table[14][2]/255.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    colrs[1]++;
+    update_memories( chars, colrs );
     //------------------------------------------------------------------
     // Activate the texture units and bind the texture buffers
     // as defined at initialization.
@@ -182,9 +177,12 @@ void text_screen::render()
 }
 
 //======================================================================
-void text_screen::update_memories( uint8_t new_chars[1000] )
+void text_screen::update_memories( uint8_t new_chars[1000], uint8_t new_colrs[1000] )
 {
     screen.bind().Image2D( &new_chars[0] );
+    colram.bind().Image2D( &new_colrs[0] );
+    glUseProgram( program_id );
+    glUniform1i( loc_bg_color, colrs[1] & 0x0f );
 }
 
 //======================================================================

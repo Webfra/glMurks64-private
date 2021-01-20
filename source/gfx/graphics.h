@@ -22,7 +22,7 @@ class Graphics
 public:
     void init();
     void render();
-    void update_screen(int width, int height);
+    void resize_screen(int width, int height);
 private:
 
     Rectangle charset;
