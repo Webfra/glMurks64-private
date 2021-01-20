@@ -8,8 +8,8 @@
 //======================================================================
 // Note: A SCALING of 8 means characters are 8x8 pixels in size.
 #define SCALING (8)
-#define SCREEN_WIDTH  (1280)
-#define SCREEN_HEIGHT (1024)
+#define SCREEN_WIDTH  (384*2)
+#define SCREEN_HEIGHT (272*2)
 //======================================================================
 class MainWindow
 {

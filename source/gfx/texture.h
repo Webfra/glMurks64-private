@@ -43,6 +43,7 @@ public:
     Texture &Image2D(const GLvoid * data);              // glTexImage2D()
 
     Texture &Pi( GLenum pname, GLint param );   // glTexParameteri()
+    Texture &GenerateMipMap();
     
     void unbind();                              // glBindTexture(0)
 

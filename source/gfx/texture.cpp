@@ -70,6 +70,11 @@ namespace gfx {
         glTexParameteri( tex_target, pname, param );
         return *this;
     }
+    Texture &Texture::GenerateMipMap()
+    {
+        glGenerateMipmap(tex_target);
+        return *this;
+    }
     void Texture::unbind()
     {
         glBindTexture( tex_target, 0 );

@@ -41,8 +41,9 @@ public:
             .iformat(GL_RGB).size(w,h).format(GL_RGB).type(GL_UNSIGNED_BYTE).Image2D( nullptr )
             .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP)
             .Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
-            .Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-            .Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+            .Pi(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
+            .Pi(GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR)
+            .GenerateMipMap()
         .unbind();
         // --------------------------------------------------------------
         // Assign the texture to the frame buffer.
@@ -55,7 +56,7 @@ public:
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         // --------------------------------------------------------------
         // Create the rectangle for drawing the framebuffer on the screen.
-        Rect.init( 0,0,1,1 );
+        Rect.init( 0,0, w, h );
         // --------------------------------------------------------------
     }
     //========================================================================
@@ -85,24 +86,30 @@ public:
     void resize_screen(int width, int height)
     {
         // --------------------------------------------------------------
-        // "Target" aspect ratio of the C64 screen.
-        float target_aspect = float(384) / float(272);
+        // "original" coordinate system of the framebuffer.
+        gfx::Rect2D<float> org { 0, 0, float(Rect.tex.width()), float(Rect.tex.height()) };
+        // Original aspect ratio.
+        float org_aspect = org.w / org.h;
         // Current window aspect ratio (after resize.)
         float window_aspect = float(width) / float(height);
-        float screen_stretch = 1.08;
-        // --------------------------------------------------------------
-        // Allow the user to change the target aspect ration.
-        // 1.0 = real C64 framebuffer aspect ratio.
-        target_aspect /= float(screen_stretch);
 
         // --------------------------------------------------------------
         // The shader that renders the framebuffer on the screen needs
-        // to be adjusted to keep the real aspect ratio.
+        // to be adjusted to keep the original aspect ratio.
         // --------------------------------------------------------------
-        // Screen coordinates expected by the shader.
-        gfx::Rect2D<float> org { 0,0,1,1 };
-        // modified screen coordinates
-        auto rst { gfx::adapt_aspect<float>(org, window_aspect, target_aspect) };
+        // rst = Resulting coordinate system
+        gfx::Rect2D<float> rst { org };
+        if( window_aspect > org_aspect )
+        {
+            rst.w = window_aspect * org.h;
+            rst.x = (org.w - rst.w)/2;
+        }
+        else
+        {
+            rst.h = org.w / window_aspect;
+            rst.y = (org.h - rst.h)/2;
+        }
+        // --------------------------------------------------------------
         mat4x4 MVP;
         mat4x4_ortho(MVP, float(rst.x), float(rst.x + rst.w),
                           float(rst.y), float(rst.y + rst.h),
