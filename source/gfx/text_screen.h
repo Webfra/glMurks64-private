@@ -40,7 +40,7 @@ private:
     //======================================================================
     uint8_t chars[1000];    // A buffer representing the text screen.
     uint8_t colrs[1000];    // A buffer representing the color memory.    
-    ::vec2 coords[1000];    // A buffer holding the screen coordinates (0-39,0-24) of each character.
+    vec3   coords[1000];    // A buffer holding the screen coordinates (0-39,0-24) of each character.
 
 };
 
