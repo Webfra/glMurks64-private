@@ -1,9 +1,10 @@
+//========================================================================
+
 #include "text_screen.h"
 #include "graphics.h"
 #include "utils.h"
 
 #include <iostream>
-
 namespace gfx {
 
 //========================================================================
@@ -80,6 +81,7 @@ GLuint link_program( GLuint vxs_id, GLuint fts_id, GLuint gms_id )
     return program_id;
 }
 
+#if (DRAW_CHARSET)
 //========================================================================
 // Read the character set out of C64 ROM and prepare a texture image.
 // The texture will be 16x16 characters = 128x128 pixels
@@ -112,43 +114,7 @@ void prepare_charset( uint8_t char_rom[], GLchar image[128][128] )
         }
     }
 }
-
-//========================================================================
-// Calculate a rectangle such, that if "org" matches "org_aspect",
-// then the resulting rectangle matches "target_aspect" (with the same "scaling factor".)
-// Note that "org" doesn't have to have the "org_aspect".
-// (That's the mentioned "scaling factor".)
-// --------------------------------------------------------------
-// Eg. We have a texture with aspect ratio 1.4 to be rendered on the screen.
-// The default Open GL coordinate system places (-1,-1) at the lower left corner
-// of the screen and (+1,+1) at the upper right corner of the screen (independent
-// of the real aspect ratio of the screen.)
-// If the screen has 1920x1080 resolution (aspect ratio of about 1.78) then
-// a fullscreen rendering of the texture would distort it.
-// So the width of the Open GL coordinate system should be slightly extended by
-// the factor 1.78 / 1.4 = 1.26.
-// To get this, call the adapt_aspect like this:
-// auto result = adapt_aspect( { -1, -1, 2, 2 }, 1.78, 1.4)
-// The resulting rectangle can be given to mat4x4_ortho() to create an according
-// projection matrix. But note that adapt_aspect() works with width and height, while
-// mat4v4_ortho() works with x1/y1 and x2/y2...
-template<typename T>
-Rect2D<T> adapt_aspect( const Rect2D<T> &org, T target_aspect, T org_aspect)
-{
-    // --------------------------------------------------------------
-    // rst ("result") will be the modified coordinates.
-    Rect2D<T> rst { org };
-    // Scale either width or height, so that the other extends the full window.
-    if( target_aspect > org_aspect )
-    {
-        rst.w = org.h * (target_aspect / org_aspect);
-        rst.x = org.x + (org.w - rst.w) / 2;
-    } else {
-        rst.h = org.w / (target_aspect / org_aspect);
-        rst.y = org.y + (org.h - rst.h) / 2;
-    }
-    return rst;
-}
+#endif
 
 //========================================================================
 void Graphics::init()
@@ -162,6 +128,7 @@ void Graphics::init()
     // Initialize the text screen.
     screen.init( chargen );
 
+#if (DRAW_CHARSET)
     // Create an OpenGL texture from the image.
     prepare_charset( (uint8_t*)chargen.data(), image );
     charset.tex.gen().activate(0).bind(GL_TEXTURE_2D)
@@ -173,7 +140,7 @@ void Graphics::init()
         .unbind();
     // Create the OpenGL Rectangle.
     charset.init( 20, 20, 128, 128);
-
+#endif
 }
 
 //========================================================================
@@ -223,7 +190,9 @@ void Graphics::resize_screen(int width, int height)
     //------------------------------------------------------------------
     // Everything else renders to the framebuffer, so it must be 
     // adjusted to the framebuffer size.
+#if(DRAW_CHARSET)
     charset.resize_screen ( frame.Rect.tex.width(), frame.Rect.tex.height() );
+#endif
     screen.resize_screen  ( frame.Rect.tex.width(), frame.Rect.tex.height() );
     //------------------------------------------------------------------
 }

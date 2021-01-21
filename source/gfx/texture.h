@@ -1,11 +1,10 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#include "utils.h"
+
 #include <glad/glad.h>
 #include <cassert>
-
-#define NO_COPY(cls) cls(const cls&) = delete; cls & operator=(const cls&) = delete
-#define NO_MOVE(cls) cls(cls&&) = delete; cls & operator=(cls&&) = delete
 
 //========================================================================
 namespace gfx {
@@ -29,12 +28,13 @@ public:
     void gl_Uniform( GLint location );          
     
     Texture &gen();                             // glGenTextures()
+    void del() { glDeleteTextures(1, &texture_name); }
     
     Texture &activate( GLenum textureUnit );    // glActiveTexture - set given value
     Texture &activate();                        // glActiveTexture - reuse last set value
     
-    Texture &bind( GLenum target );             // glBindTExture   - set given value
-    Texture &bind();                            // glBindTexte     - reuse last set value
+    Texture &bind( GLenum target );             // glBindTExture   - set given target and bind to it.
+    Texture &bind();                            // glBindTexte     - reuse last set target
 
     Texture &iformat( GLint internalFormat = GL_RGB );  // set internalFormat for Image2D()
     Texture &size( GLsizei width, GLsizei height );     // set width and height for Image2D()
@@ -46,8 +46,6 @@ public:
     Texture &GenerateMipMap();
     
     void unbind();                              // glBindTexture(0)
-
-    void del() { glDeleteTextures(1, &texture_name); }
 
     GLsizei width() { return tex_width; }
     GLsizei height() { return tex_height; }

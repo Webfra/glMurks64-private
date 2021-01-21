@@ -1,6 +1,6 @@
 
 #include "rectangle.h"
-#include "graphics.h"
+#include "definitions.h"
 #include "linmath.h"
 #include <glad/glad.h>
 

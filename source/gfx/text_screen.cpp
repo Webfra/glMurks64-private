@@ -1,12 +1,10 @@
+
 #include "text_screen.h"
 #include "texture.h"
+#include "definitions.h"
 #include "utils.h"
 
-#include "graphics.h"
 #include "linmath.h"
-
-#include "mainwindow.h"
-
 #include <glad/glad.h>
 #include <iostream>
 
@@ -99,7 +97,7 @@ void text_screen::init( utils::Buffer &CG )
     glUseProgram( program_id );
 
     glUniform2f( loc_Offset, 64/2, 72/2 );
-    glUniform1f( loc_scaling, SCALING); // keep it power of 2, or it may look ugly.
+    glUniform1f( loc_scaling, 8); // 8 = "real life pixel size" 
     glUniform1i( loc_charset, 0);
     glUniform1i( loc_bg_color, 6);
 

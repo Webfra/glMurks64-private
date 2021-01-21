@@ -20,9 +20,9 @@ public:
 
 private:
     //======================================================================
-    Texture chrgen;
-    Texture screen;
-    Texture colram;
+    Texture chrgen;     // A Texture to hold the character generator ROM
+    Texture screen;     // A Texture to hold the 1000 bytes of screen RAM
+    Texture colram;     // A Texture to hold the 1000 nibbles of color RAM.
     //======================================================================
     GLuint program_id;
     GLuint vertex_array_id;

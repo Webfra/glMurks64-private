@@ -26,6 +26,7 @@ add_executable( ${target}
     source/gfx/text_screen_shaders.vs
     source/gfx/text_screen_shaders.gs
     source/gfx/text_screen_shaders.fs
+    source/gfx/framebuffer.h
 
     )
 

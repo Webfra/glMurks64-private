@@ -1,5 +1,5 @@
-#include "texture.h"
 
+#include "texture.h"
 namespace gfx {
 
     void Texture::gl_Uniform( GLint location )

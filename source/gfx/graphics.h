@@ -1,129 +1,18 @@
+//========================================================================
+
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
+#include "framebuffer.h"
 #include "text_screen.h"
 #include "rectangle.h"
 
-#include <glad/glad.h>
-#include <array>
+#include "definitions.h"
+
+#define DRAW_CHARSET (0)
 
 //========================================================================
 namespace gfx {
-
-typedef GLint ivec3[3];
-extern std::array<ivec3, 16> color_table;
-
-//========================================================================
-GLuint compile_shader(GLenum type, const char * code );
-GLuint link_program( GLuint vxs_id, GLuint fts_id, GLuint gms_id = 0 );
-
-//========================================================================
-template<typename T> struct Rect2D { T x, y, w, h; };
-
-//========================================================================
-template<typename T>
-Rect2D<T> adapt_aspect( const Rect2D<T> &org, T target_aspect, T org_aspect);
-
-//========================================================================
-class Framebuffer
-{
-public:
-    //========================================================================
-    void init(GLsizei w, GLsizei h)
-    {
-        // --------------------------------------------------------------
-        // Generate a framebuffer and bind it.
-        glGenFramebuffers(1,&framebuffer_name);
-        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_name);
-        // --------------------------------------------------------------
-        // Generate a texture for the framebuffer.
-        Rect.tex.gen().activate(0).bind(GL_TEXTURE_2D)
-            .iformat(GL_RGB).size(w,h).format(GL_RGB).type(GL_UNSIGNED_BYTE).Image2D( nullptr )
-            .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP)
-            .Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
-            .Pi(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
-            .Pi(GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR)
-            .GenerateMipMap()
-        .unbind();
-        // --------------------------------------------------------------
-        // Assign the texture to the frame buffer.
-        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, Rect.tex, 0);
-        if( GL_FRAMEBUFFER_COMPLETE != glCheckFramebufferStatus(GL_FRAMEBUFFER))
-        {
-            throw std::runtime_error("Framebuffer could not be completed!");
-        }
-        // --------------------------------------------------------------
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        // --------------------------------------------------------------
-        // Create the rectangle for drawing the framebuffer on the screen.
-        Rect.init( 0,0, w, h );
-        // --------------------------------------------------------------
-    }
-    //========================================================================
-    // Activate the Framebuffer, so that following draw calls go on the 
-    // Framebuffer, not on the screen.
-    void activate()
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_name);
-        glViewport( 0,0, Rect.tex.width(), Rect.tex.height() );
-    }
-    //========================================================================
-    // Deactivate the Framebuffer, draw calls go to the screen again.
-    void deactivate()
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    }
-    //========================================================================
-    // Render the content of the Framebuffer (on the screen).
-    void render()
-    {
-        Rect.render();
-    }
-    //========================================================================
-    // React to changes of the screen size. 
-    // Keep the Framebuffer maximized on the screen, but keep its 
-    // aspect ratio intact.
-    void resize_screen(int width, int height)
-    {
-        // --------------------------------------------------------------
-        // "original" coordinate system of the framebuffer.
-        gfx::Rect2D<float> org { 0, 0, float(Rect.tex.width()), float(Rect.tex.height()) };
-        // Original aspect ratio.
-        float org_aspect = org.w / org.h;
-        // Current window aspect ratio (after resize.)
-        float window_aspect = float(width) / float(height);
-
-        // --------------------------------------------------------------
-        // The shader that renders the framebuffer on the screen needs
-        // to be adjusted to keep the original aspect ratio.
-        // --------------------------------------------------------------
-        // rst = Resulting coordinate system
-        gfx::Rect2D<float> rst { org };
-        if( window_aspect > org_aspect )
-        {
-            rst.w = window_aspect * org.h;
-            rst.x = (org.w - rst.w)/2;
-        }
-        else
-        {
-            rst.h = org.w / window_aspect;
-            rst.y = (org.h - rst.h)/2;
-        }
-        // --------------------------------------------------------------
-        mat4x4 MVP;
-        mat4x4_ortho(MVP, float(rst.x), float(rst.x + rst.w),
-                          float(rst.y), float(rst.y + rst.h),
-                          1.0f, -1.0f);
-        // --------------------------------------------------------------
-        Rect.SetMVP( MVP );
-        // --------------------------------------------------------------
-    }
-    //========================================================================
-    Rectangle Rect; // Provides a texture and a rectangle shader for drawing the framebuffer on the screen.
-    //========================================================================
-private:
-    GLuint framebuffer_name {0};
-};
 
 //========================================================================
 class Graphics
@@ -135,7 +24,9 @@ public:
 
 private:
     int m_Width, m_Height;
+#if(DRAW_CHARSET)
     Rectangle charset;
+#endif
     text_screen screen;
     Framebuffer frame;
 };
