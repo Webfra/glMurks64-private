@@ -26,9 +26,9 @@ public:
             .iformat(GL_RGB).size(w,h).format(GL_RGB).type(GL_UNSIGNED_BYTE).Image2D( nullptr )
             .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP)
             .Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
-            .Pi(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
-            .Pi(GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR)
-            .GenerateMipMap()
+            .Pi(GL_TEXTURE_MIN_FILTER, GL_LINEAR) //GL_LINEAR_MIPMAP_LINEAR)
+            .Pi(GL_TEXTURE_MAG_FILTER, GL_LINEAR) //GL_LINEAR_MIPMAP_LINEAR)
+            //.GenerateMipMap()
         .unbind();
         // --------------------------------------------------------------
         // Assign the texture to the frame buffer.
