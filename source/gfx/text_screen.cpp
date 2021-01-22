@@ -33,8 +33,8 @@ out flat int fg_col_vs;     // output: the foreground color to display (0-15)
 
 void main()                 // Shader: Calculate screen coordinates of the
 {                           // vertex from the 3D position.
-    gl_Position  = vec4( TextOffset + ivec2(screen_coord.xy)*scaling, 0, 1);
-    ivec2 coord  = ivec2(screen_coord.z,0);
+    gl_Position  = vec4( TextOffset + (screen_coord.xy)*scaling, 0, 1);
+    ivec2 coord  = ivec2( int(screen_coord.z),0);
     character_vs = (texelFetch(CHARS, coord, 0 ).r) & 0xFF;
     fg_col_vs    = (texelFetch(COLOR, coord, 0 ).r) & 0x0F;
 }
@@ -142,40 +142,38 @@ void main()
 
 //========================================================================
 // Setup the text screen objects;
-void text_screen::init( utils::Buffer &CG )
+void text_screen::init( utils::Buffer &CG, int cols, int rows, vec2 pos )
 {
+    m_Rows = rows;
+    m_Cols = cols;
+    int max_chars = rows*cols;
+
     //------------------------------------------------------------------
-    // Clear the buffers.
-    for( int i=0; i<(40*25); i++ )
+    // Create a buffer holding the screen coordinates (0-39,0-24) of each character.
+    vec3   coords[max_chars]; 
+    for( int i=0; i<max_chars; i++ )
     {
-        chars[i]=32; // Space character
-        colrs[i]=14; // light blue color
-        coords[i][0]   = float(i % 40);
-        coords[i][1]   = float(i / 40);
+        coords[i][0]   = float(i % cols);
+        coords[i][1]   = float(i / cols);
         coords[i][2]   = float(i);
     }
-    //------------------------------------------------------------------
-    // Fill the screen with something visible
-    for(int x=0;x<16;x++)
-        for(int y=0;y<16;y++)
-            chars[x+y*40] = x+y*16;
 
     //------------------------------------------------------------------
     // Set up the "texture" to hold the screen RAM.
-    screen.gen().activate(0).bind(GL_TEXTURE_2D).size(1000,1)
+    screen.gen().activate(0).bind(GL_TEXTURE_2D).size(max_chars,1)
         .iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE)
         .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
         .Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-        .Image2D((char*)&chars[0])
+        .Image2D(nullptr)
         .unbind();
 
     //------------------------------------------------------------------
     // Set up the "texture" to hold the color RAM.
-    colram.gen().activate(1).bind(GL_TEXTURE_2D).size(1000,1)
+    colram.gen().activate(1).bind(GL_TEXTURE_2D).size(max_chars,1)
         .iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE)
         .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
         .Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-        .Image2D((char*)&colrs[0])
+        .Image2D(nullptr)
         .unbind();
 
     //------------------------------------------------------------------
@@ -213,7 +211,7 @@ void text_screen::init( utils::Buffer &CG )
     // Set some defaults of the shader uniforms
     glUseProgram( program_id );
 
-    glUniform2f( loc_Offset, 64/2, 72/2 );
+    glUniform2f( loc_Offset, pos[0], pos[1] );
     glUniform1f( loc_scaling, 8); // 8 = "real life pixel size" 
     glUniform1i( loc_charset, 0);
     glUniform1i( loc_bg_color, 6);
@@ -235,7 +233,7 @@ void text_screen::init( utils::Buffer &CG )
     //------------------------------------------------------------------
     // Enable shader input "vPos" and describe its layout in the vertex buffer.
     glEnableVertexAttribArray(loc_coord);
-    glVertexAttribPointer( loc_coord, 3, GL_FLOAT, GL_FALSE, sizeof(vec2), 0 );
+    glVertexAttribPointer( loc_coord, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), 0 );
     //------------------------------------------------------------------
     // Upload the vertices to the vertex buffer.
     glBufferData( GL_ARRAY_BUFFER, sizeof(coords), &coords[0], GL_DYNAMIC_DRAW );
@@ -266,18 +264,28 @@ void text_screen::render()
     // Draw the vertices of the texture screen.
     glUseProgram( program_id );
     glBindVertexArray(vertex_array_id);
-    glDrawArrays( GL_POINTS, 0, 1000);
+    glDrawArrays( GL_POINTS, 0, m_Rows * m_Cols);
     //------------------------------------------------------------------
 }
 
 //======================================================================
-void text_screen::update_memories( uint8_t new_chars[1000], uint8_t new_colrs[1000] )
+void text_screen::set_memories( uint8_t *new_chars, uint8_t *new_colrs )
 {
-    screen.bind().Image2D( &new_chars[0] );
-    colram.bind().Image2D( &new_colrs[0] );
+    screen.bind().Image2D( new_chars );
+    colram.bind().Image2D( new_colrs );
+
+    /*
     glUseProgram( program_id );
-    glUniform1i( loc_bg_color, colrs[1] & 0x0f );
+    glUniform1i( loc_bg_color, new_colrs[1] & 0x0f );
+    */
 }
+
+void text_screen::set_bg_color( int bg_color )
+{
+    glUseProgram( program_id );
+    glUniform1i( loc_bg_color, bg_color );
+}
+
 
 //======================================================================
 void text_screen::resize_screen(int width, int height)

@@ -119,14 +119,6 @@ void MainWindow::load_open_gl( GLADloadproc proc_address )
     printf("Vendor:   %s\n", glGetString(GL_VENDOR));
     printf("Renderer: %s\n", glGetString(GL_RENDERER));
     printf("Version:  %s\n", glGetString(GL_VERSION));
-//    printf("Shader language: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION) );
-
-#if 0
-    GLint maxVertUniformsVect;
-    glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, &maxVertUniformsVect);
-    std::cout << "Maximum uniform vectors: " << maxVertUniformsVect << std::endl;
-#endif
-
     fflush(stdout);
 #endif
 }
@@ -167,11 +159,11 @@ void MainWindow::toggle_fullscreen()
     auto flags { SDL_GetWindowFlags(pWin) & SDL_WINDOW_FULLSCREEN_DESKTOP};
     flags ^= SDL_WINDOW_FULLSCREEN_DESKTOP;
     SDL_SetWindowFullscreen(pWin, flags);
-
+#if 0
     int w, h;
     SDL_GetWindowSize( pWin, &w, &h );
     graphics.resize_screen(w,h); //event.window.data1, event.window.data2 );
-
+#endif
 }
 
 //======================================================================
@@ -183,12 +175,14 @@ bool MainWindow::on_window_event( SDL_Event & event)
         graphics.resize_screen(event.window.data1, event.window.data2 );
         return true;
         break;
+#if 0
     case SDL_WINDOWEVENT_RESIZED:
         int w, h;
         SDL_GetWindowSize( pWin, &w, &h );
         graphics.resize_screen(w,h); //event.window.data1, event.window.data2 );
         return true;
         break;
+#endif
     }
     return false;
 }

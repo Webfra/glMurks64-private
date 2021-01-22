@@ -126,7 +126,36 @@ void Graphics::init()
     auto chargen { utils::RM.load("roms/chargen") };
 
     // Initialize the text screen.
-    screen.init( chargen );
+    vec2 pos { 32, 36 };
+    screen.init( chargen, 40, 25, pos );
+
+    vec2 opos { 0, 4 };
+    overlay.init( chargen, 48, 33, opos);
+    overlay.set_bg_color( 14);
+
+#if 1
+    int cols=40, rows=25, max_chars = rows*cols;
+    uint8_t chars[max_chars];    // A buffer representing the text screen.
+    uint8_t colrs[max_chars];    // A buffer representing the color memory.    
+
+    //------------------------------------------------------------------
+    // Clear the buffers.
+    for( int i=0; i<max_chars; i++ )
+    {
+        chars[i]=i; // Space character
+        colrs[i]=14; // light blue color
+    }
+    #if 1
+    //------------------------------------------------------------------
+    // Fill the screen with something visible
+    for(int x=0;x<16;x++)
+        for(int y=0;y<16;y++)
+            chars[x+y*cols] = x+y*16;
+    #endif
+
+    screen.set_memories( chars, colrs );
+#endif
+    //overlay.set_memories( chars, colrs );
 
 #if (DRAW_CHARSET)
     // Create an OpenGL texture from the image.
@@ -163,6 +192,7 @@ void Graphics::render()
                   color_table[14][2] / 255.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    overlay.render();
     screen.render();
     //charset.render();
 
@@ -194,6 +224,7 @@ void Graphics::resize_screen(int width, int height)
     charset.resize_screen ( frame.Rect.tex.width(), frame.Rect.tex.height() );
 #endif
     screen.resize_screen  ( frame.Rect.tex.width(), frame.Rect.tex.height() );
+    overlay.resize_screen ( frame.Rect.tex.width(), frame.Rect.tex.height() );
     //------------------------------------------------------------------
 }
 

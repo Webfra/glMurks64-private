@@ -28,6 +28,7 @@ private:
     Rectangle charset;
 #endif
     text_screen screen;
+    text_screen overlay;
     Framebuffer frame;
 };
 

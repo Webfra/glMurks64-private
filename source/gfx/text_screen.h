@@ -8,15 +8,24 @@
 //======================================================================
 namespace gfx {
 
+#if 0
+#define COLS (384/8)
+#define ROWS (272/8)
+#define MAX_CHARS ( COLS * ROWS )
+#endif
+
 //======================================================================
 class text_screen
 {
 public:
     //======================================================================
-    void init( utils::Buffer &CG );
+    void init( utils::Buffer &CG, int rows, int cols, vec2 pos );
     void render();
     void resize_screen(int width, int height);
-    void update_memories( uint8_t new_chars[1000], uint8_t new_colrs[1000] );
+    void set_memories( uint8_t *new_chars, uint8_t *new_colrs );
+    void set_bg_color( int bg_color );
+
+    int m_Rows, m_Cols;
 
 private:
     //======================================================================
@@ -38,10 +47,11 @@ private:
     GLint loc_scaling;
     GLint loc_charset;
     //======================================================================
-    uint8_t chars[1000];    // A buffer representing the text screen.
-    uint8_t colrs[1000];    // A buffer representing the color memory.    
-    vec3   coords[1000];    // A buffer holding the screen coordinates (0-39,0-24) of each character.
-
+    #if 0
+    uint8_t chars[MAX_CHARS];    // A buffer representing the text screen.
+    uint8_t colrs[MAX_CHARS];    // A buffer representing the color memory.    
+    vec3   coords[MAX_CHARS];    // A buffer holding the screen coordinates (0-39,0-24) of each character.
+    #endif
 };
 
 //======================================================================
