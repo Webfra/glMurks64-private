@@ -76,19 +76,6 @@ void Graphics::init()
 #endif
     overlay.set_memories( chars, colrs );
 
-#if (DRAW_CHARSET)
-    // Create an OpenGL texture from the image.
-    prepare_charset( (uint8_t*)chargen.data(), image );
-    charset.tex.gen().activate(0).bind(GL_TEXTURE_2D)
-        .iformat(GL_R8).size(128,128).format(GL_RED).type(GL_UNSIGNED_BYTE).Image2D(&image[0][0])
-        .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP)
-        .Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
-        .Pi(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-        .Pi(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        .unbind();
-    // Create the OpenGL Rectangle.
-    charset.init( 20, 20, 128, 128);
-#endif
 }
 
 //========================================================================
@@ -111,9 +98,6 @@ void Graphics::render()
 
     overlay.render();
     screen.render();
-#if (DRAW_CHARSET)
-    charset.render();
-#endif
 
     //------------------------------------------------------------------
     // Deactivate the framebuffer to enable rendering to the screen.
@@ -139,9 +123,6 @@ void Graphics::resize_screen(int width, int height)
     //------------------------------------------------------------------
     // Everything else renders to the framebuffer, so it must be 
     // adjusted to the framebuffer size.
-#if(DRAW_CHARSET)
-    charset.resize_screen ( frame.Rect.tex.width(), frame.Rect.tex.height() );
-#endif
     screen.resize_screen  ( frame.Rect.tex.width(), frame.Rect.tex.height() );
     overlay.resize_screen ( frame.Rect.tex.width(), frame.Rect.tex.height() );
     //------------------------------------------------------------------

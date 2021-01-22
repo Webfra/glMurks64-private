@@ -4,7 +4,6 @@
 #include "utils.h"
 
 #include <glad/glad.h>
-#include <cassert>
 
 //========================================================================
 namespace gfx {

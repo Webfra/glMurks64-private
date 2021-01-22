@@ -9,8 +9,6 @@
 
 #include "gfx_utils.h"
 
-#define DRAW_CHARSET (1)
-
 //========================================================================
 namespace gfx {
 
@@ -25,9 +23,7 @@ public:
 private:
     int m_Width, m_Height;
     vec3 border_color;
-#if(DRAW_CHARSET)
-    Rectangle charset;
-#endif
+
     text_screen screen;
     text_screen overlay;
     Framebuffer frame;
