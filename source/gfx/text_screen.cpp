@@ -1,7 +1,7 @@
 
 #include "text_screen.h"
 #include "texture.h"
-#include "definitions.h"
+#include "gfx_utils.h"
 #include "utils.h"
 
 #include "linmath.h"
@@ -280,6 +280,8 @@ void text_screen::set_memories( uint8_t *new_chars, uint8_t *new_colrs )
     */
 }
 
+//======================================================================
+// Set the background color
 void text_screen::set_bg_color( int bg_color )
 {
     glUseProgram( program_id );

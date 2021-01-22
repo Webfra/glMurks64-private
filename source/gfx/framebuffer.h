@@ -2,7 +2,7 @@
 #define FRAMEBUFFER_H
 
 #include "rectangle.h"
-#include "definitions.h"
+#include "gfx_utils.h"
 #include <glad/glad.h>
 #include <stdexcept>
 
@@ -72,28 +72,12 @@ public:
     {
         // --------------------------------------------------------------
         // "original" coordinate system of the framebuffer.
-        Rect2D<float> org { 0.0f, 0.0f, float(Rect.tex.width()), float(Rect.tex.height()) };
-        // Original aspect ratio.
-        float org_aspect = org.w / org.h;
-        // Current (new) window aspect ratio.
-        float window_aspect = float(width) / float(height);
+        Rect2D<float> rst { 0.0f, 0.0f, float(Rect.tex.width()), float(Rect.tex.height()) };
 
-        // --------------------------------------------------------------
-        // The shader that renders the framebuffer on the screen needs
-        // to be adjusted to keep the original aspect ratio.
-        // --------------------------------------------------------------
-        // rst = Resulting coordinate system
-        gfx::Rect2D<float> rst { org };
-        if( window_aspect > org_aspect )
-        {
-            rst.w = window_aspect * org.h;
-            rst.x = (org.w - rst.w)/2;
-        }
-        else
-        {
-            rst.h = org.w / window_aspect;
-            rst.y = (org.h - rst.h)/2;
-        }
+        // Adjust the coordinate system to fit on the screen, keeping 
+        // the aspect ratio for the framebuffer intact.
+        adjust_aspect( rst, float(width) / float(height) );
+
         // --------------------------------------------------------------
         mat4x4 MVP;
         mat4x4_ortho(MVP, float(rst.x), float(rst.x + rst.w),
