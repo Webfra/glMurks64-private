@@ -28,7 +28,7 @@ public:
             .Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
             .Pi(GL_TEXTURE_MIN_FILTER, GL_LINEAR) //GL_LINEAR_MIPMAP_LINEAR)
             .Pi(GL_TEXTURE_MAG_FILTER, GL_LINEAR) //GL_LINEAR_MIPMAP_LINEAR)
-            //.GenerateMipMap()
+            //.GenerateMipMap() // Doesn't seem to work properly...?
         .unbind();
         // --------------------------------------------------------------
         // Assign the texture to the frame buffer.
