@@ -73,7 +73,6 @@ Thumbs.db
 *.exe
 
 # VS code
-.vscode
 build
 
 renderdoc*.cap

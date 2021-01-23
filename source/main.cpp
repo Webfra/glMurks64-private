@@ -74,8 +74,6 @@ namespace utils {
 //======================================================================
 int main(int, char**)
 {
-    // auto chargen { utils::RM.load("roms/chargen") };
-
     if(SDL_Init(SDL_INIT_VIDEO) >= 0)
     {
         atexit( SDL_Quit );

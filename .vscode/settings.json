@@ -1,0 +1,9 @@
+{
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "cmake.buildDirectory": "${workspaceFolder}/build/${command:cpptools.activeConfigName}/${buildType}",
+    "files.associations": {
+        "chrono": "cpp",
+        "*.tcc": "cpp",
+        "stdexcept": "cpp"
+    }
+}
