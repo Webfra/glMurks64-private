@@ -19,7 +19,7 @@ class text_screen
 {
 public:
     //======================================================================
-    void init( utils::Buffer &CG, int rows, int cols, vec2 pos );
+    void init( utils::Buffer &CG, int rows, int cols, const vec2 &pos );
     void render();
     void resize_screen(int width, int height);
     void set_memories( uint8_t *new_chars, uint8_t *new_colrs );

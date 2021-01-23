@@ -36,18 +36,17 @@ void Graphics::init()
 {
     frame.init(384, 272);
 
-    // Prepare the texture data from the character ROM
-    GLchar image[128][128];
+    // Load the character generator ROM.
     auto chargen { utils::RM.load("roms/chargen") };
 
     // Initialize the text screen.
-    vec2 pos { 32, 36 };
-    screen.init( chargen, 40, 25, pos );
+    screen.init( chargen, 40, 25, vec2 { 32, 36 } );
 
-    vec2 opos { 0, 4 };
-    overlay.init( chargen, 48, 33, opos);
-    overlay.set_bg_color( 14);
+    // Initialize the overlay.
+    overlay.init( chargen, 48, 33, vec2 { 0, 4 } );
+    overlay.set_bg_color(14);
 
+    // Set the clear color for the render stage: The C64 border color.
     border_color[0] = color_table[14][0] / 255.0f;
     border_color[1] = color_table[14][1] / 255.0f;
     border_color[2] = color_table[14][2] / 255.0f;
@@ -64,7 +63,7 @@ void Graphics::init()
         chars[i]=i; // Space character
         colrs[i]=14; // light blue color
     }
-    #if 1
+    #if 0
     //------------------------------------------------------------------
     // Fill the screen with something visible
     for(int x=0;x<16;x++)
@@ -72,9 +71,9 @@ void Graphics::init()
             chars[x+y*cols] = x+y*16;
     #endif
 
-    screen.set_memories( chars, colrs );
+    screen.set_memories( nullptr, colrs );
 #endif
-    overlay.set_memories( chars, colrs );
+    overlay.set_memories( nullptr, colrs );
 
 }
 
@@ -84,30 +83,35 @@ void Graphics::render()
     //------------------------------------------------------------------
     // Set up the framebuffer for rendering INTO it.
     frame.activate();
+    glViewport( 0,0, frame.Rect.tex.width(), frame.Rect.tex.height() );
     //------------------------------------------------------------------
 
     //------------------------------------------------------------------
     // Disable depth test and face culling.
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
-
+    
     //------------------------------------------------------------------
     // Define the border color.
     glClearColor( border_color[0],border_color[1],border_color[2], 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    //------------------------------------------------------------------
     overlay.render();
     screen.render();
 
     //------------------------------------------------------------------
     // Deactivate the framebuffer to enable rendering to the screen.
     frame.deactivate();
+    glViewport(0,0, m_Width, m_Height);
     //------------------------------------------------------------------
 
     //------------------------------------------------------------------
-    // Render the framebuffer to the screen.
-    glViewport(0,0, m_Width, m_Height);
     glClearColor( 0,0,0, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    //------------------------------------------------------------------
+    // Render the framebuffer to the screen.
     frame.render(); // Render the frame buffer on the screen.
 }
 

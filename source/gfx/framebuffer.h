@@ -50,7 +50,6 @@ public:
     void activate()
     {
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_name);
-        glViewport( 0,0, Rect.tex.width(), Rect.tex.height() );
     }
     //========================================================================
     // Deactivate the Framebuffer, draw calls go to the screen again.

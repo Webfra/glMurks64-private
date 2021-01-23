@@ -142,7 +142,7 @@ void main()
 
 //========================================================================
 // Setup the text screen objects;
-void text_screen::init( utils::Buffer &CG, int cols, int rows, vec2 pos )
+void text_screen::init( utils::Buffer &CG, int cols, int rows, const vec2 &pos )
 {
     m_Rows = rows;
     m_Cols = cols;
