@@ -149,34 +149,31 @@ void text_screen::init( utils::Buffer &CG, int cols, int rows, const glm::vec2 &
     //------------------------------------------------------------------
     // Set up the "texture" to hold the screen RAM.
     screen.gen().activate(0).bind(GL_TEXTURE_2D).size(max_chars,1)
-        .iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE)
+        .iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE).TexImage2D()
         .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
         .Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-        .Image2D(nullptr)
         .unbind();
 
     //------------------------------------------------------------------
     // Set up the "texture" to hold the color RAM.
     colram.gen().activate(1).bind(GL_TEXTURE_2D).size(max_chars,1)
-        .iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE)
+        .iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE).TexImage2D()
         .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
         .Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-        .Image2D(nullptr)
         .unbind();
 
     //------------------------------------------------------------------
     // Set up the texture to hold the character generator ROM.
     //auto CG { utils::RM.load("roms/chargen") };
     chrgen.gen().activate(2).bind(GL_TEXTURE_2D).size(8,512)
-        .iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE)
+        .iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE).TexImage2D( CG.data() )
         .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
         .Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-        .Image2D( CG.data() )
         .unbind();
 
     //------------------------------------------------------------------
     // Compile and link the shader program.
-    program.compile( GL_VERTEX_SHADER, vxs);
+    program.compile( GL_VERTEX_SHADER,   vxs );
     program.compile( GL_GEOMETRY_SHADER, gms );
     program.compile( GL_FRAGMENT_SHADER, fts );
     program.link();
@@ -260,8 +257,8 @@ void text_screen::render()
 //======================================================================
 void text_screen::set_memories( uint8_t *new_chars, uint8_t *new_colrs )
 {
-    screen.bind().Image2D( new_chars );
-    colram.bind().Image2D( new_colrs );
+    screen.bind().TexImage2D( new_chars );
+    colram.bind().TexImage2D( new_colrs );
 }
 
 //======================================================================

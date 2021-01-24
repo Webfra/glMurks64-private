@@ -34,8 +34,12 @@ public:
     //========================================================================
     Rectangle Rect; // Provides a texture and a rectangle shader for drawing the framebuffer on the screen.
     //========================================================================
+    GLsizei width()  { return m_Width;  }
+    GLsizei height() { return m_Height; }
 private:
     GLuint framebuffer_name {0};
+    GLsizei m_Width;
+    GLsizei m_Height;
 };
 
 //========================================================================

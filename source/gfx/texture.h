@@ -41,20 +41,19 @@ public:
     Texture &size   ( GLsizei width, GLsizei height );   // set width and height
     Texture &format ( GLint   format = GL_RGB );         // set format
     Texture &type   ( GLint   type = GL_UNSIGNED_BYTE ); // set type
-    Texture &Image2D( const GLvoid * data);              // provide pixel data and call glTexImage2D()
+    // Provide pixel data and call glTexImage2D()
+    // To update the texture with same parameters, just call TexImage2D() again.
+    Texture &TexImage2D( const GLvoid * data = nullptr );
 
     Texture &Pi( GLenum pname, GLint param );   // glTexParameteri()
     Texture &GenerateMipMap();
-
-    GLsizei width()  { return tex_width;  }
-    GLsizei height() { return tex_height; }
 
 private:
     GLuint texture_name { 0 };
     GLenum tex_unit {  0 /* + GL_TEXTURE0 */ };
     GLenum tex_target { GL_TEXTURE_2D };
-    
-    // The following members store the values to be used by Image2D()
+
+    // The following members store the values to be used by TexImage2D()
     GLint    tex_level  { 0 };
     GLint    tex_internalFormat { GL_RGB };
     GLsizei  tex_width  { 0 };

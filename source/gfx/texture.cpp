@@ -58,7 +58,7 @@ namespace gfx {
         tex_type = type;
         return *this;
     }
-    Texture &Texture::Image2D(const GLvoid * data)
+    Texture &Texture::TexImage2D(const GLvoid * data)
     {
         glTexImage2D( tex_target,
                       tex_level,

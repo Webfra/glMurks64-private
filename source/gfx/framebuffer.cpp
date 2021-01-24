@@ -15,6 +15,8 @@ namespace gfx {
     //========================================================================
     void Framebuffer::init(GLsizei w, GLsizei h)
     {
+        m_Width = w;
+        m_Height = h;
         // --------------------------------------------------------------
         // Generate a framebuffer and bind it.
         glGenFramebuffers(1,&framebuffer_name);
@@ -22,7 +24,7 @@ namespace gfx {
         // --------------------------------------------------------------
         // Generate a texture for the framebuffer.
         Rect.tex.gen().activate(0).bind(GL_TEXTURE_2D)
-            .iformat(GL_RGB).size(w,h).format(GL_RGB).type(GL_UNSIGNED_BYTE).Image2D( nullptr )
+            .iformat(GL_RGB).size(w,h).format(GL_RGB).type(GL_UNSIGNED_BYTE).TexImage2D()
             .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP)
             .Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
             .Pi(GL_TEXTURE_MIN_FILTER, GL_LINEAR) //GL_LINEAR_MIPMAP_LINEAR)
@@ -40,7 +42,7 @@ namespace gfx {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         // --------------------------------------------------------------
         // Create the rectangle for drawing the framebuffer on the screen.
-        Rect.init( 0,0, w, h );
+        Rect.init( 0,0, m_Width, m_Height );
         // --------------------------------------------------------------
     }
     //========================================================================
@@ -70,7 +72,7 @@ namespace gfx {
     {
         // --------------------------------------------------------------
         // "original" coordinate system of the framebuffer.
-        Rect2D<float> rst { 0.0f, 0.0f, float(Rect.tex.width()), float(Rect.tex.height()) };
+        Rect2D<float> rst { 0.0f, 0.0f, float(m_Width), float(m_Height) };
 
         // --------------------------------------------------------------
         // Adjust the coordinate system to fit on the screen, keeping 

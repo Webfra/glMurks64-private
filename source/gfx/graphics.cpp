@@ -50,8 +50,8 @@ void Graphics::init()
     //------------------------------------------------------------------
     // Everything that renders to the framebuffer, must be 
     // adjusted to the framebuffer size.
-    border.resize_screen ( frame.Rect.tex.width(), frame.Rect.tex.height() );
-    screen.resize_screen ( frame.Rect.tex.width(), frame.Rect.tex.height() );
+    border.resize_screen ( frame.width(), frame.height() );
+    screen.resize_screen ( frame.width(), frame.height() );
     //------------------------------------------------------------------
 #if 1 // Put something on the screen - just for testing.
     int max_chars = rows*cols;
@@ -77,7 +77,7 @@ void Graphics::render()
     //------------------------------------------------------------------
     // Set up the framebuffer for rendering INTO it.
     frame.activate();
-    glViewport( 0,0, frame.Rect.tex.width(), frame.Rect.tex.height() );
+    glViewport( 0,0, frame.width(), frame.height() );
     //------------------------------------------------------------------
     // Disable depth test and face culling.
     glDisable(GL_DEPTH_TEST);
