@@ -2,10 +2,8 @@
 #define RECTANGLE_H
 
 #include "texture.h"
+#include "shader.h"
 #include "gfx_utils.h"
-
-//#include "linmath.h"
-#include <glm/glm.hpp>
 
 //========================================================================
 namespace gfx {

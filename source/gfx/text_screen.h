@@ -2,8 +2,8 @@
 #define TEXT_SCREEN_H
 
 #include "texture.h"
+#include "shader.h"
 #include "gfx_utils.h"
-#include "utils.h"
 
 //======================================================================
 namespace gfx {

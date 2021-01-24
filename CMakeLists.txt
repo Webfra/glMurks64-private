@@ -28,6 +28,8 @@ add_executable( ${target}
     ${gfx}/graphics.cpp
     ${gfx}/texture.cpp
     ${gfx}/texture.h
+    ${gfx}/shader.cpp
+    ${gfx}/shader.h
     ${gfx}/rectangle.cpp
     ${gfx}/rectangle.h
     ${gfx}/text_screen.cpp

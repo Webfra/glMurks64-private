@@ -7,11 +7,11 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
 #include <glad/glad.h>
 
 //========================================================================
 #include <array>
-#include <vector>
 
 //========================================================================
 namespace gfx {
@@ -24,27 +24,6 @@ extern std::array<glm::ivec3, 16> color_table;
 // A rectangle definition I thought I would need more than once.
 template<typename T>
 struct Rect2D { T x, y, w, h; };
-
-//========================================================================
-class Shader 
-{
-public:
-    //========================================================================
-    Shader() = default;
-    NO_MOVE( Shader );
-    NO_COPY( Shader );
-    virtual ~Shader() = default;
-    //========================================================================
-    // Provide a converstion that can be used in OpenGL calls.
-    operator GLuint() { return prg_id; }
-    //========================================================================
-    void compile( GLenum type, const char * code );  // Compile a shader and store it.
-    void link();    // Link all compiled shaders.
-    //========================================================================
-private:
-    GLuint prg_id { 0 };
-    std::vector<GLuint> shaders_ids; // List of attached shaders.
-};
 
 //========================================================================
 // Extend the given rectangle "org_rect" such, that it has the given
