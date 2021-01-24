@@ -20,7 +20,7 @@ add_executable( ${target}
     ${src}/mainwindow.h
     ${src}/mainwindow.cpp
 
-    ${gfx}/linmath.h
+#    ${gfx}/linmath.h
 
     ${gfx}/gfx_utils.cpp
     ${gfx}/gfx_utils.h
