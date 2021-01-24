@@ -31,14 +31,6 @@ struct Rect2D { T x, y, w, h; };
 // MODIFIES org_rect!
 void adjust_aspect(Rect2D<float> &org_rect, float target_aspect);
 
-#if 0 // No longer used.
-//========================================================================
-// Read the character set of the C64 ROM and prepare a texture image.
-// The texture will be 16x16 characters = 128x128 pixels
-// Each pixel is 1 byte in the texture image. (Instead of 1 bit in the character rom.)
-void prepare_charset( uint8_t char_rom[], GLchar image[128][128] );
-#endif
-
 //========================================================================
 } // End of namespace gfx
 
