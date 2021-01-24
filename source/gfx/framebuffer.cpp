@@ -72,14 +72,16 @@ namespace gfx {
         // "original" coordinate system of the framebuffer.
         Rect2D<float> rst { 0.0f, 0.0f, float(Rect.tex.width()), float(Rect.tex.height()) };
 
+        // --------------------------------------------------------------
         // Adjust the coordinate system to fit on the screen, keeping 
         // the aspect ratio for the framebuffer intact.
         adjust_aspect( rst, float(width) / float(height) );
 
         // --------------------------------------------------------------
-        auto MVP { glm::ortho<float>(float(rst.x), float(rst.x + rst.w),
-                          float(rst.y), float(rst.y + rst.h),
-                          1.0f, -1.0f) };
+        // Calculate the MVP such that it covers the extended coordinate system.
+        auto MVP { glm::ortho( rst.x, rst.x + rst.w,
+                               rst.y, rst.y + rst.h,
+                                1.0f, -1.0f) };
         // --------------------------------------------------------------
         Rect.SetMVP( MVP );
         // --------------------------------------------------------------

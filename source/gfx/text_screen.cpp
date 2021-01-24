@@ -186,28 +186,28 @@ void text_screen::init( utils::Buffer &CG, int cols, int rows, const glm::vec2 &
 
     //------------------------------------------------------------------
     // Compile and link the shader program.
-    auto vxs_id = compile_shader( GL_VERTEX_SHADER, vxs );
-    auto gms_id = compile_shader( GL_GEOMETRY_SHADER, gms );
-    auto fts_id = compile_shader( GL_FRAGMENT_SHADER, fts );
-    program_id = link_program( vxs_id, fts_id, gms_id);
+    program.compile( GL_VERTEX_SHADER, vxs);
+    program.compile( GL_GEOMETRY_SHADER, gms );
+    program.compile( GL_FRAGMENT_SHADER, fts );
+    program.link();
 
     //------------------------------------------------------------------
     // Get the locations of the shader inputs and uniforms.
-    loc_coord =    glGetAttribLocation( program_id, "screen_coord" );
+    loc_coord =    glGetAttribLocation( program, "screen_coord" );
 
-    loc_MVP =      glGetUniformLocation( program_id, "MVP"  );
-    loc_TEX =      glGetUniformLocation( program_id, "TEX"  );
-    loc_CHARS =    glGetUniformLocation( program_id, "CHARS"  );
-    loc_COLOR =    glGetUniformLocation( program_id, "COLOR"  );
-    loc_palette =  glGetUniformLocation( program_id, "palette"  );
-    loc_bg_color = glGetUniformLocation( program_id, "background_color"  );
-    loc_Offset =   glGetUniformLocation( program_id, "TextOffset");
-    loc_scaling =  glGetUniformLocation( program_id, "scaling"  );
-    loc_charset =  glGetUniformLocation( program_id, "charset");
+    loc_MVP =      glGetUniformLocation( program, "MVP"  );
+    loc_TEX =      glGetUniformLocation( program, "TEX"  );
+    loc_CHARS =    glGetUniformLocation( program, "CHARS"  );
+    loc_COLOR =    glGetUniformLocation( program, "COLOR"  );
+    loc_palette =  glGetUniformLocation( program, "palette"  );
+    loc_bg_color = glGetUniformLocation( program, "background_color"  );
+    loc_Offset =   glGetUniformLocation( program, "TextOffset");
+    loc_scaling =  glGetUniformLocation( program, "scaling"  );
+    loc_charset =  glGetUniformLocation( program, "charset");
 
     //------------------------------------------------------------------
     // Set some defaults of the shader uniforms
-    glUseProgram( program_id );
+    glUseProgram( program );
 
     glUniform2f( loc_Offset, pos[0], pos[1] );
     glUniform1f( loc_scaling, 8); // 8 = "real life pixel size" 
@@ -246,13 +246,6 @@ void text_screen::init( utils::Buffer &CG, int cols, int rows, const glm::vec2 &
 void text_screen::render()
 {
     //------------------------------------------------------------------
-    // TEMPORARY TEST: CHANGE SCREEN CHARACTERS
-    #if 0
-    chars[0]++;
-    colrs[1]++;
-    update_memories( chars, colrs );
-    #endif
-    //------------------------------------------------------------------
     // Activate the texture units and bind the texture buffers
     // as defined at initialization.
     screen.activate().bind();
@@ -260,7 +253,7 @@ void text_screen::render()
     chrgen.activate().bind();
     //------------------------------------------------------------------
     // Draw the vertices of the texture screen.
-    glUseProgram( program_id );
+    glUseProgram( program );
     glBindVertexArray(vertex_array_id);
     glDrawArrays( GL_POINTS, 0, m_Rows * m_Cols);
     //------------------------------------------------------------------
@@ -271,21 +264,15 @@ void text_screen::set_memories( uint8_t *new_chars, uint8_t *new_colrs )
 {
     screen.bind().Image2D( new_chars );
     colram.bind().Image2D( new_colrs );
-
-    /*
-    glUseProgram( program_id );
-    glUniform1i( loc_bg_color, new_colrs[1] & 0x0f );
-    */
 }
 
 //======================================================================
 // Set the background color
 void text_screen::set_bg_color( int bg_color )
 {
-    glUseProgram( program_id );
+    glUseProgram( program );
     glUniform1i( loc_bg_color, bg_color );
 }
-
 
 //======================================================================
 void text_screen::resize_screen(int width, int height)
@@ -293,7 +280,7 @@ void text_screen::resize_screen(int width, int height)
     //------------------------------------------------------------------
     auto MVP { glm::ortho<float>( 0, width, height, 0, 1, -1 ) };
     //------------------------------------------------------------------
-    glUseProgram( program_id );
+    glUseProgram( program );
     glUniformMatrix4fv( loc_MVP, 1, false, &MVP[0][0]);
     //------------------------------------------------------------------
 }

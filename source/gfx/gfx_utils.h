@@ -1,28 +1,50 @@
 #pragma once
+//========================================================================
+
+#include "utils.h"
+
+//========================================================================
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
 #include <glad/glad.h>
+
+//========================================================================
 #include <array>
+#include <vector>
 
 //========================================================================
 namespace gfx {
 
 //========================================================================
+// The C64 color table.
 extern std::array<glm::ivec3, 16> color_table;
 
 //========================================================================
+// A rectangle definition I thought I would need more than once.
 template<typename T>
 struct Rect2D { T x, y, w, h; };
 
 //========================================================================
-// Compile the given shader code of the given shader type.
-// Returns the shader id ("name").
-GLuint compile_shader(GLenum type, const char * code );
-// Link the given shaders into a shader program.
-// Returns the program id ("name").
-GLuint link_program( GLuint vxs_id, GLuint fts_id, GLuint gms_id = 0 );
+class Shader 
+{
+public:
+    //========================================================================
+    Shader() = default;
+    NO_MOVE( Shader );
+    NO_COPY( Shader );
+    virtual ~Shader() = default;
+    //========================================================================
+    operator GLuint() { return prg_id; }
+    //========================================================================
+    bool compile( GLenum type, const char * code );  // Compile a shader and store it.
+    bool link();    // Link all compiled shaders.
+    //void UseProgram() { glUseProgram( prg_id ); }
+
+private:
+    GLuint prg_id;
+    std::vector<GLuint> shaders; // List of attached shaders.
+};
 
 //========================================================================
 // Extend the given rectangle "org_rect" such, that it has the given
@@ -30,12 +52,15 @@ GLuint link_program( GLuint vxs_id, GLuint fts_id, GLuint gms_id = 0 );
 // MODIFIES org_rect!
 void adjust_aspect(Rect2D<float> &org_rect, float target_aspect);
 
+#if 0 // No longer used.
 //========================================================================
-// Read the character set out of C64 ROM and prepare a texture image.
+// Read the character set of the C64 ROM and prepare a texture image.
 // The texture will be 16x16 characters = 128x128 pixels
 // Each pixel is 1 byte in the texture image. (Instead of 1 bit in the character rom.)
 void prepare_charset( uint8_t char_rom[], GLchar image[128][128] );
+#endif
 
+//========================================================================
 } // End of namespace gfx
 
 //========================================================================

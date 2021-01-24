@@ -43,6 +43,11 @@ typedef struct
 //========================================================================
 void Rectangle::init(GLfloat x, GLfloat y, GLfloat w, GLfloat h )
 {
+    #if 1
+    shader.compile(GL_VERTEX_SHADER, vxs);
+    shader.compile(GL_FRAGMENT_SHADER, fts);
+    shader.link();
+    #else
     //------------------------------------------------------------------
     // Create a new vertex shader object.
     GLuint shader_id_vxs = compile_shader( GL_VERTEX_SHADER, vxs );
@@ -51,15 +56,16 @@ void Rectangle::init(GLfloat x, GLfloat y, GLfloat w, GLfloat h )
     GLuint shader_id_fts = compile_shader( GL_FRAGMENT_SHADER, fts );
     //------------------------------------------------------------------
     program_id = link_program( shader_id_vxs, shader_id_fts );
+    #endif
 
     //======================================================================
     // Geometry relevant init.
     //------------------------------------------------------------------
     // Get locations of shader input variables and uniforms, for later reference.
-    GLint loc_vPos = glGetAttribLocation( program_id, "vPos" );
-    GLint loc_tPos = glGetAttribLocation( program_id, "tPos" );
-    loc_TEX = glGetUniformLocation( program_id, "TEX"  );
-    loc_MVP = glGetUniformLocation( program_id, "MVP"  );
+    GLint loc_vPos = glGetAttribLocation( shader, "vPos" );
+    GLint loc_tPos = glGetAttribLocation( shader, "tPos" );
+    loc_TEX = glGetUniformLocation( shader, "TEX"  );
+    loc_MVP = glGetUniformLocation( shader, "MVP"  );
     //------------------------------------------------------------------
     // Create a vertex attribute array and bind it.
     glGenVertexArrays(1, &vertex_array_id);
@@ -95,8 +101,8 @@ void Rectangle::init(GLfloat x, GLfloat y, GLfloat w, GLfloat h )
     glBindVertexArray(0);
     //------------------------------------------------------------------
     // Shaders can be marked for deletion already.
-    glDeleteShader( shader_id_vxs );
-    glDeleteShader( shader_id_fts );
+    //glDeleteShader( shader_id_vxs );
+    //glDeleteShader( shader_id_fts );
     //------------------------------------------------------------------
 }
 
@@ -105,7 +111,7 @@ void Rectangle::render()
 {
     //------------------------------------------------------------------
     // Activate the drawing shader program.
-    glUseProgram(program_id);
+    glUseProgram(shader);
 
     //------------------------------------------------------------------
     // Activate and bind the texture.
@@ -123,7 +129,7 @@ void Rectangle::resize_screen(int width, int height)
     //------------------------------------------------------------------
     auto MVP { glm::ortho<float>( 0, width, height, 0, 1, -1 ) };
     //------------------------------------------------------------------
-    glUseProgram( program_id );
+    glUseProgram( shader );
     glUniformMatrix4fv( loc_MVP, 1, false, &MVP[0][0]);
 }
 

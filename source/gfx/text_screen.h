@@ -32,7 +32,8 @@ private:
     Texture screen;     // A Texture to hold the 1000 bytes of screen RAM
     Texture colram;     // A Texture to hold the 1000 nibbles of color RAM.
     //======================================================================
-    GLuint program_id;
+    //GLuint program_id;
+    Shader program;
     GLuint vertex_array_id;
     GLint loc_coord;        // Location of shader input "screen_coord"
     //======================================================================

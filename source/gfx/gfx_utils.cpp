@@ -7,6 +7,65 @@
 namespace gfx {
 
 //========================================================================
+// Compile a shader and store it.
+bool Shader::compile( GLenum type, const char * code )  
+{
+    //------------------------------------------------------------------
+    // A buffer for holding messages from compiling shaders.
+    GLchar buffer[2048];
+    GLsizei length;
+    buffer[2047]=0;
+    //------------------------------------------------------------------
+    // Create a new shader object.
+    auto shader_id = glCreateShader(type);
+    // Load the shader in OpenGL
+    glShaderSource( shader_id, 1, &code, NULL);
+    // Compile the shader.
+    glCompileShader( shader_id );
+    // See if any errors occurred during compilation.
+    glGetShaderInfoLog( shader_id, 2047, &length, buffer);
+    if (length > 0)
+    {
+        std::cerr << "Compiling shader log: " << buffer << std::endl;
+        //exit(-1);
+        return false; // Rather throw an exception?
+    }
+    shaders.push_back(shader_id);
+    return true;
+}
+
+//========================================================================
+// Attach all shaders and link them to a shader program.
+bool Shader::link()
+{
+    //------------------------------------------------------------------
+    // A buffer for holding messages from linking the program.
+    GLchar buffer[2048];
+    GLsizei length;
+    buffer[2047]=0;
+    //------------------------------------------------------------------
+    // Create a new shader program object to hold the shaders.
+    prg_id = glCreateProgram();
+    // Attach all the previously compiled shaders.
+    for( auto &shader_id: shaders )
+    {
+        glAttachShader( prg_id, shader_id );
+    }
+    // Link the shader program.
+    glLinkProgram( prg_id );
+    // See if any errors occurred during linking.
+    glGetProgramInfoLog( prg_id, 2047, &length, buffer);
+    if (length > 0)
+    {
+        fprintf(stderr, "Linking Program log: %s", buffer);
+        //exit(-1);
+        return false;
+    }
+    return true;
+}
+
+#if 0
+//========================================================================
 GLuint compile_shader(GLenum type, const char * code )
 {
     //------------------------------------------------------------------
@@ -56,6 +115,7 @@ GLuint link_program( GLuint vxs_id, GLuint fts_id, GLuint gms_id )
     }
     return program_id;
 }
+#endif
 
 //========================================================================
 // Extend the given rectangle "org" such, that it has the given
@@ -80,6 +140,7 @@ void adjust_aspect(Rect2D<float> &org, float target_aspect)
     }
 }
 
+#if 0 // No longer used.
 //========================================================================
 // Read the character set out of C64 ROM and prepare a texture image.
 // The texture will be 16x16 characters = 128x128 pixels
@@ -112,6 +173,7 @@ void prepare_charset( uint8_t char_rom[], GLchar image[128][128] )
         }
     }
 }
+#endif
 
 } // End of namespace gfx
 

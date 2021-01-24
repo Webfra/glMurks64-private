@@ -14,13 +14,14 @@ class Framebuffer
 {
 public:
     //========================================================================
-    void init(GLsizei w, GLsizei h);
+    // Initialize the framebuffer with the given width and height.
+    void init(GLsizei width, GLsizei height);
     //========================================================================
-    // Activate the Framebuffer, so that following draw calls go on the 
+    // Activate the Framebuffer, so that following draw-calls go on the 
     // Framebuffer, not on the screen.
     void activate();
     //========================================================================
-    // Deactivate the Framebuffer, draw calls go to the screen again.
+    // Deactivate the Framebuffer, draw-calls go to the screen again.
     void deactivate();
     //========================================================================
     // Render the content of the Framebuffer (on the screen).
