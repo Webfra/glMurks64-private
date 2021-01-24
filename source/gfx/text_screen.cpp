@@ -147,16 +147,6 @@ void text_screen::init( utils::Buffer &CG, int cols, int rows, const glm::vec2 &
     int max_chars = rows*cols;
 
     //------------------------------------------------------------------
-    // Create a buffer holding the screen coordinates (0-39,0-24) of each character.
-    glm::vec3 coords[max_chars]; 
-    for( int i=0; i<max_chars; i++ )
-    {
-        coords[i][0]   = float(i % cols);
-        coords[i][1]   = float(i / cols);
-        coords[i][2]   = float(i);
-    }
-
-    //------------------------------------------------------------------
     // Set up the "texture" to hold the screen RAM.
     screen.gen().activate(0).bind(GL_TEXTURE_2D).size(max_chars,1)
         .iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE)
@@ -206,35 +196,43 @@ void text_screen::init( utils::Buffer &CG, int cols, int rows, const glm::vec2 &
     loc_charset =  glGetUniformLocation( program, "charset");
 
     //------------------------------------------------------------------
-    // Set some defaults of the shader uniforms
+    // Set some defaults of the shader uniforms.
     glUseProgram( program );
-
     glUniform2f( loc_Offset, pos[0], pos[1] );
-    glUniform1f( loc_scaling, 8); // 8 = "real life pixel size" 
-    glUniform1i( loc_charset, 0);
-    glUniform1i( loc_bg_color, 0);
-
-    screen.gl_Uniform( loc_CHARS );
-    colram.gl_Uniform( loc_COLOR );
-    chrgen.gl_Uniform( loc_TEX );
-
-    //------------------------------------------------------------------
-    // Set the palette
+    glUniform1f( loc_scaling,  8);   // 8 = "real life pixel size" .
+    glUniform1i( loc_charset,  0);   // Which of the two character sets to show.
+    glUniform1i( loc_bg_color, 0);   // The background color to use for all characters.
+    // Set the palette / color table.
     glUniform3iv( loc_palette, sizeof(color_table), &color_table.data()[0][0] );
+    // Assign the textures for screen RAM, color RAM and character generator ROM.
+    screen.set_texture_unit( loc_CHARS );
+    colram.set_texture_unit( loc_COLOR );
+    chrgen.set_texture_unit( loc_TEX   );
+
     //------------------------------------------------------------------
     // Create a vertex attribute array and bind it.
     glGenVertexArrays(1, &vertex_array_id);
     glBindVertexArray(vertex_array_id);
-    GLuint vertex_buffer_id;
     glGenBuffers(1, &vertex_buffer_id);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_id);
     //------------------------------------------------------------------
     // Enable shader input "vPos" and describe its layout in the vertex buffer.
     glEnableVertexAttribArray(loc_coord);
     glVertexAttribPointer( loc_coord, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0 );
+
+    //------------------------------------------------------------------
+    // Create a buffer holding the screen coordinates (0-39,0-24) of each character.
+    glm::vec3 coords[max_chars]; 
+    for( int i=0; i<max_chars; i++ )
+    {
+        coords[i][0]   = float(i % m_Cols); // x-position on the screen.
+        coords[i][1]   = float(i / m_Cols); // y-position on the screen.
+        coords[i][2]   = float(i);          // Index into the screen RAM.
+    }
     //------------------------------------------------------------------
     // Upload the vertices to the vertex buffer.
     glBufferData( GL_ARRAY_BUFFER, sizeof(coords), &coords[0], GL_DYNAMIC_DRAW );
+
     //------------------------------------------------------------------
     // Unbind the vertex attribute array and the vertex buffer.
     glBindBuffer(GL_ARRAY_BUFFER, 0);

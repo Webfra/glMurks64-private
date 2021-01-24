@@ -35,15 +35,15 @@ public:
     NO_COPY( Shader );
     virtual ~Shader() = default;
     //========================================================================
+    // Provide a converstion that can be used in OpenGL calls.
     operator GLuint() { return prg_id; }
     //========================================================================
-    bool compile( GLenum type, const char * code );  // Compile a shader and store it.
-    bool link();    // Link all compiled shaders.
-    //void UseProgram() { glUseProgram( prg_id ); }
-
+    void compile( GLenum type, const char * code );  // Compile a shader and store it.
+    void link();    // Link all compiled shaders.
+    //========================================================================
 private:
-    GLuint prg_id;
-    std::vector<GLuint> shaders; // List of attached shaders.
+    GLuint prg_id { 0 };
+    std::vector<GLuint> shaders_ids; // List of attached shaders.
 };
 
 //========================================================================

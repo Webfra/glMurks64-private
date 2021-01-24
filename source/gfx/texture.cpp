@@ -4,7 +4,7 @@
 //========================================================================
 namespace gfx {
 
-    void Texture::gl_Uniform( GLint location )
+    void Texture::set_texture_unit( GLint location )
     {
         glUniform1i( location, tex_unit );
     }
@@ -12,6 +12,10 @@ namespace gfx {
     {
         glGenTextures(1, &texture_name);
         return *this;
+    }
+    void Texture::del()
+    {
+            glDeleteTextures(1, &texture_name);
     }
     Texture &Texture::activate()
     {

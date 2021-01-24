@@ -25,12 +25,12 @@ public:
     }
 
     Texture tex;
-public:
-    //GLuint program_id {0};
+private:
     Shader shader;
-    GLint loc_TEX;
-    GLint loc_MVP;
-    GLuint vertex_array_id;
+    GLint loc_TEX { -1 };
+    GLint loc_MVP { -1 };
+    GLuint vertex_array_id { 0 };
+    GLuint vertex_buffer_id { 0 };
 };
 
 //========================================================================

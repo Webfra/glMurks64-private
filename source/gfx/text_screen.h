@@ -35,6 +35,7 @@ private:
     //GLuint program_id;
     Shader program;
     GLuint vertex_array_id;
+    GLuint vertex_buffer_id;
     GLint loc_coord;        // Location of shader input "screen_coord"
     //======================================================================
     GLint loc_MVP;          // Location of uniform MVP
