@@ -3,7 +3,8 @@
 
 #include "texture.h"
 #include "utils.h"
-#include "linmath.h"
+//#include "linmath.h"
+#include <glm/glm.hpp>
 
 //======================================================================
 namespace gfx {

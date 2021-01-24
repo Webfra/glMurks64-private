@@ -57,6 +57,10 @@ find_package(SDL2 REQUIRED )
 target_link_libraries(${target} PRIVATE ${SDL2_LIBRARY} )
 target_include_directories(${target} PRIVATE "${SDL2_INCLUDE_DIR}" )
 
+#========================================================================
+# Add GLM library.
+add_subdirectory( glm/glm )
+target_link_libraries( ${target} PRIVATE glm )
 
 #========================================================================
 # End of file.

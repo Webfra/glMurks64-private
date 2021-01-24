@@ -3,7 +3,8 @@
 
 #include "texture.h"
 
-#include "linmath.h"
+//#include "linmath.h"
+#include <glm/glm.hpp>
 
 //========================================================================
 namespace gfx {
@@ -16,11 +17,19 @@ public:
     void render();
     void resize_screen(int width, int height);
 
+#if 0
     void SetMVP( mat4x4 &MVP)
     {
         glUseProgram( program_id );
         glUniformMatrix4fv( loc_MVP, 1, false, &MVP[0][0]);
     }
+#else
+    void SetMVP( const glm::mat4 &MVP)
+    {
+        glUseProgram( program_id );
+        glUniformMatrix4fv( loc_MVP, 1, false, &MVP[0][0]);
+    }
+#endif
 
     Texture tex;
 public:

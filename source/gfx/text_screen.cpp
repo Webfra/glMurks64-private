@@ -4,7 +4,8 @@
 #include "gfx_utils.h"
 #include "utils.h"
 
-#include "linmath.h"
+//#include "linmath.h"
+#include <glm/glm.hpp>
 #include <glad/glad.h>
 #include <iostream>
 

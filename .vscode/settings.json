@@ -4,6 +4,7 @@
     "files.associations": {
         "chrono": "cpp",
         "*.tcc": "cpp",
-        "stdexcept": "cpp"
+        "stdexcept": "cpp",
+        "iostream": "cpp"
     }
 }

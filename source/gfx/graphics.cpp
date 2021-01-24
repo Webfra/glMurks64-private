@@ -4,6 +4,8 @@
 #include "graphics.h"
 #include "utils.h"
 
+#include <glm/glm.hpp>
+
 #include <iostream>
 namespace gfx {
 
