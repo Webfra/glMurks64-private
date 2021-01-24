@@ -47,11 +47,6 @@ private:
     GLint loc_scaling;
     GLint loc_charset;
     //======================================================================
-    #if 0
-    uint8_t chars[MAX_CHARS];    // A buffer representing the text screen.
-    uint8_t colrs[MAX_CHARS];    // A buffer representing the color memory.    
-    vec3   coords[MAX_CHARS];    // A buffer holding the screen coordinates (0-39,0-24) of each character.
-    #endif
 };
 
 //======================================================================

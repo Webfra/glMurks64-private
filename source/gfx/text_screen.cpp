@@ -214,7 +214,7 @@ void text_screen::init( utils::Buffer &CG, int cols, int rows, const vec2 &pos )
     glUniform2f( loc_Offset, pos[0], pos[1] );
     glUniform1f( loc_scaling, 8); // 8 = "real life pixel size" 
     glUniform1i( loc_charset, 0);
-    glUniform1i( loc_bg_color, 6);
+    glUniform1i( loc_bg_color, 0);
 
     screen.gl_Uniform( loc_CHARS );
     colram.gl_Uniform( loc_COLOR );

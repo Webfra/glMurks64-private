@@ -22,7 +22,6 @@ public:
 
 private:
     int m_Width, m_Height;
-    vec3 border_color;
 
     text_screen screen;
     text_screen overlay;

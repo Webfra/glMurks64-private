@@ -34,46 +34,32 @@ std::array<ivec3, 16> color_table { {
 //========================================================================
 void Graphics::init()
 {
+    int cols=40, rows=25, max_chars = rows*cols;
+
     frame.init(384, 272);
 
     // Load the character generator ROM.
     auto chargen { utils::RM.load("roms/chargen") };
 
     // Initialize the text screen.
-    screen.init( chargen, 40, 25, vec2 { 32, 36 } );
+    screen.init( chargen, cols, rows, vec2 { 32, 36 } );
 
     // Initialize the overlay.
     overlay.init( chargen, 48, 33, vec2 { 0, 4 } );
-    overlay.set_bg_color(14);
 
-    // Set the clear color for the render stage: The C64 border color.
-    border_color[0] = color_table[14][0] / 255.0f;
-    border_color[1] = color_table[14][1] / 255.0f;
-    border_color[2] = color_table[14][2] / 255.0f;
-
-#if 1
-    int cols=40, rows=25, max_chars = rows*cols;
-    uint8_t chars[max_chars];    // A buffer representing the text screen.
-    uint8_t colrs[max_chars];    // A buffer representing the color memory.    
+    uint8_t chars[max_chars*2];    // A buffer representing the text screen.
+    uint8_t colrs[max_chars*2];    // A buffer representing the color memory.    
 
     //------------------------------------------------------------------
     // Clear the buffers.
-    for( int i=0; i<max_chars; i++ )
+    for( int i=0; i<max_chars*2; i++ )
     {
-        chars[i]=i; // Space character
-        colrs[i]=14; // light blue color
+        chars[i]=32; // Space character
+        colrs[i]=0; // light blue color
     }
-    #if 0
-    //------------------------------------------------------------------
-    // Fill the screen with something visible
-    for(int x=0;x<16;x++)
-        for(int y=0;y<16;y++)
-            chars[x+y*cols] = x+y*16;
-    #endif
 
-    screen.set_memories( nullptr, colrs );
-#endif
-    overlay.set_memories( nullptr, colrs );
+    screen.set_memories ( chars, colrs );
+    overlay.set_memories( chars, colrs );
 
 }
 
@@ -93,7 +79,7 @@ void Graphics::render()
     
     //------------------------------------------------------------------
     // Define the border color.
-    glClearColor( border_color[0],border_color[1],border_color[2], 0.0f);
+    glClearColor( 0,0,0, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     //------------------------------------------------------------------

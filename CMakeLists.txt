@@ -32,9 +32,7 @@ add_executable( ${target}
     ${gfx}/rectangle.h
     ${gfx}/text_screen.cpp
     ${gfx}/text_screen.h
-#    ${gfx}/text_screen_shaders.vs
-#    ${gfx}/text_screen_shaders.gs
-#    ${gfx}/text_screen_shaders.fs
+    ${gfx}/framebuffer.cpp
     ${gfx}/framebuffer.h
 
     )
