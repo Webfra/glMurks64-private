@@ -12,16 +12,21 @@ namespace gfx {
 class text_screen
 {
 public:
+    //========================================================================
+    text_screen() = default;
+    NO_COPY( text_screen );
+    NO_MOVE( text_screen );
+    virtual ~text_screen() = default;
     //======================================================================
     void init( utils::Buffer &CG, int rows, int cols, const glm::vec2 &pos );
-    void render();
-    void resize_screen(int width, int height);
     void set_memories( uint8_t *new_chars, uint8_t *new_colrs );
     void set_bg_color( int bg_color );
+    void render();
+    void resize_screen( int width, int height );
 
-    int m_Rows, m_Cols;
 
 private:
+    int m_Rows, m_Cols; // Number of rows and columns of the text screen.
     //======================================================================
     Texture chrgen;     // A Texture to hold the character generator ROM
     Texture screen;     // A Texture to hold the 1000 bytes of screen RAM
