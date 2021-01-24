@@ -77,15 +77,9 @@ namespace gfx {
         adjust_aspect( rst, float(width) / float(height) );
 
         // --------------------------------------------------------------
-        glm::mat4x4 MVP;
-        auto mvp { glm::ortho<float>(float(rst.x), float(rst.x + rst.w),
+        auto MVP { glm::ortho<float>(float(rst.x), float(rst.x + rst.w),
                           float(rst.y), float(rst.y + rst.h),
                           1.0f, -1.0f) };
-#if 0
-        mat4x4_ortho(MVP, float(rst.x), float(rst.x + rst.w),
-                          float(rst.y), float(rst.y + rst.h),
-                          1.0f, -1.0f);
-#endif
         // --------------------------------------------------------------
         Rect.SetMVP( MVP );
         // --------------------------------------------------------------
