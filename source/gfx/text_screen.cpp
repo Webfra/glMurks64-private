@@ -220,7 +220,7 @@ void text_screen::init( utils::Buffer &CG, int cols, int rows, const glm::vec2 &
 
     //------------------------------------------------------------------
     // Set the palette
-    glUniform3iv( loc_palette, sizeof(ivec3[16]), &color_table.data()[0][0] );
+    glUniform3iv( loc_palette, sizeof(color_table), &color_table.data()[0][0] );
     //------------------------------------------------------------------
     // Create a vertex attribute array and bind it.
     glGenVertexArrays(1, &vertex_array_id);

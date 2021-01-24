@@ -10,8 +10,7 @@
 namespace gfx {
 
 //========================================================================
-typedef GLint ivec3[3];
-extern std::array<ivec3, 16> color_table;
+extern std::array<glm::ivec3, 16> color_table;
 
 //========================================================================
 template<typename T>

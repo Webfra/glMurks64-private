@@ -13,7 +13,7 @@ namespace gfx {
 // C64 color table. Taken from the screenshot of the C64-wiki.com
 // https://www.c64-wiki.com/wiki/color
 // Note: The values in the table on the same site are different!
-std::array<ivec3, 16> color_table { {
+std::array<glm::ivec3, 16> color_table { {
     {    0,    0,    0 }, //  0  Black
     {  255,  255,  255 }, //  1  White
     {  146,   74,   64 }, //  2  Red
@@ -36,73 +36,64 @@ std::array<ivec3, 16> color_table { {
 //========================================================================
 void Graphics::init()
 {
-    int cols=40, rows=25, max_chars = rows*cols;
-
+    constexpr int cols=40, rows=25;
+    //------------------------------------------------------------------
+    // Initialize the framebuffer.
     frame.init(384, 272);
-
+    //------------------------------------------------------------------
     // Load the character generator ROM.
     auto chargen { utils::RM.load("roms/chargen") };
-
-    // Initialize the text screen.
+    //------------------------------------------------------------------
+    // Initialize the border and text screen.
     screen.init( chargen, cols, rows, glm::vec2 { 32, 36 } );
-
-    // Initialize the overlay.
-    overlay.init( chargen, 48, 33, glm::vec2 { 0, 4 } );
-
+    border.init( chargen,   48,   35, glm::vec2 {  0, -4 } );
+    //------------------------------------------------------------------
+    // Everything that renders to the framebuffer, must be 
+    // adjusted to the framebuffer size.
+    border.resize_screen ( frame.Rect.tex.width(), frame.Rect.tex.height() );
+    screen.resize_screen ( frame.Rect.tex.width(), frame.Rect.tex.height() );
+    //------------------------------------------------------------------
+#if 1 // Put something on the screen - just for testing.
+    int max_chars = rows*cols;
     uint8_t chars[max_chars*2];    // A buffer representing the text screen.
     uint8_t colrs[max_chars*2];    // A buffer representing the color memory.    
-
-    //------------------------------------------------------------------
-    // Clear the buffers.
     for( int i=0; i<max_chars*2; i++ )
     {
-        chars[i]=i; // Space character
-        colrs[i]=6; // light blue color
+        chars[i]=i; // 32 = Space character
+        colrs[i]=14; // 14 = light blue color
     }
-
-#if 1
-    screen.set_bg_color( 14 );
-    overlay.set_bg_color( 14 );
-#endif
-
+    border.set_bg_color( 14 );
+    screen.set_bg_color( 6 );
+    border.set_memories( chars, colrs );
     screen.set_memories ( chars, colrs );
-    overlay.set_memories( chars, colrs );
-
+#endif
 }
 
 //========================================================================
 void Graphics::render()
 {
     //------------------------------------------------------------------
+    // RENDERING TO THE FRAMEBUFFER
+    //------------------------------------------------------------------
     // Set up the framebuffer for rendering INTO it.
     frame.activate();
     glViewport( 0,0, frame.Rect.tex.width(), frame.Rect.tex.height() );
     //------------------------------------------------------------------
-
-    //------------------------------------------------------------------
     // Disable depth test and face culling.
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
-    
     //------------------------------------------------------------------
-    // Define the border color.
-    glClearColor( 0,0,0, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    //------------------------------------------------------------------
-    overlay.render();
+    border.render();
     screen.render();
-
+    //------------------------------------------------------------------
+    // RENDERING TO THE SCREEN
     //------------------------------------------------------------------
     // Deactivate the framebuffer to enable rendering to the screen.
     frame.deactivate();
     glViewport(0,0, m_Width, m_Height);
     //------------------------------------------------------------------
-
-    //------------------------------------------------------------------
-    glClearColor( 0,0,0, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
+    //glClearColor( 0,0,0, 0.0f);
+    //glClear(GL_COLOR_BUFFER_BIT);
     //------------------------------------------------------------------
     // Render the framebuffer to the screen.
     frame.render(); // Render the frame buffer on the screen.
@@ -112,16 +103,13 @@ void Graphics::render()
 void Graphics::resize_screen(int width, int height)
 {
     //------------------------------------------------------------------
-    // Framebuffer renders to the screen, so it must be adjusted to
-    // the screen size.
+    // Store the new screen size.
     m_Width = width;
     m_Height = height;
-    frame.resize_screen   ( width, height );
     //------------------------------------------------------------------
-    // Everything else renders to the framebuffer, so it must be 
-    // adjusted to the framebuffer size.
-    screen.resize_screen  ( frame.Rect.tex.width(), frame.Rect.tex.height() );
-    overlay.resize_screen ( frame.Rect.tex.width(), frame.Rect.tex.height() );
+    // Framebuffer renders to the screen, so it must be adjusted to
+    // the screen size.
+    frame.resize_screen   ( m_Width, m_Height );
     //------------------------------------------------------------------
 }
 

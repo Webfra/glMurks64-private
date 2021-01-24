@@ -63,6 +63,7 @@ GLuint link_program( GLuint vxs_id, GLuint fts_id, GLuint gms_id )
 // MODIFIES org_rect!
 void adjust_aspect(Rect2D<float> &org, float target_aspect)
 {
+
     auto org_aspect { org.w / org.h };
 
     if( target_aspect > org_aspect )

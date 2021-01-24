@@ -24,7 +24,7 @@ private:
     int m_Width, m_Height;
 
     text_screen screen;
-    text_screen overlay;
+    text_screen border;
     Framebuffer frame;
 };
 
