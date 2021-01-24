@@ -10,6 +10,7 @@
 namespace gfx {
 
 //========================================================================
+// Class to render a scene into a frame buffer.
 class Framebuffer
 {
 public:
@@ -30,16 +31,18 @@ public:
     // React to changes of the screen size. 
     // Keep the Framebuffer maximized on the screen, but keep its 
     // aspect ratio intact.
-    void resize_screen(int width, int height);
-    //========================================================================
-    Rectangle Rect; // Provides a texture and a rectangle shader for drawing the framebuffer on the screen.
+    void resize_screen(int screen_width, int screen_height);
     //========================================================================
     GLsizei width()  { return m_Width;  }
     GLsizei height() { return m_Height; }
+
+    //========================================================================
+    Rectangle Rect; // Provides a texture and a rectangle shader for drawing the framebuffer on the screen.
+    //========================================================================
 private:
-    GLuint framebuffer_name {0};
-    GLsizei m_Width;
-    GLsizei m_Height;
+    GLuint framebuffer_name { 0 };
+    GLsizei m_Width  { 0 };
+    GLsizei m_Height { 0 };
 };
 
 //========================================================================

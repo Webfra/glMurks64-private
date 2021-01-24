@@ -29,7 +29,7 @@ public:
     //========================================================================
 private:
     GLuint prg_id { 0 };
-    std::vector<GLuint> shaders_ids; // List of attached shaders.
+    std::vector<GLuint> shaders_ids; // List of compiled shaders IDs.
 };
 
 //========================================================================

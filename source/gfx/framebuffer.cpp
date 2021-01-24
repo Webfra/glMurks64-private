@@ -25,8 +25,7 @@ namespace gfx {
         // Generate a texture for the framebuffer.
         Rect.tex.gen().activate(0).bind(GL_TEXTURE_2D)
             .iformat(GL_RGB).size(w,h).format(GL_RGB).type(GL_UNSIGNED_BYTE).TexImage2D()
-            .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP)
-            .Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
+            .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP) .Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
             .Pi(GL_TEXTURE_MIN_FILTER, GL_LINEAR) //GL_LINEAR_MIPMAP_LINEAR)
             .Pi(GL_TEXTURE_MAG_FILTER, GL_LINEAR) //GL_LINEAR_MIPMAP_LINEAR)
             //.GenerateMipMap() // Doesn't seem to work properly...?
@@ -68,7 +67,7 @@ namespace gfx {
     // React to changes of the screen size. 
     // Keep the Framebuffer maximized on the screen, but keep its 
     // aspect ratio intact.
-    void Framebuffer::resize_screen(int width, int height)
+    void Framebuffer::resize_screen(int screen_width, int screen_height)
     {
         // --------------------------------------------------------------
         // "original" coordinate system of the framebuffer.
@@ -77,7 +76,7 @@ namespace gfx {
         // --------------------------------------------------------------
         // Adjust the coordinate system to fit on the screen, keeping 
         // the aspect ratio for the framebuffer intact.
-        adjust_aspect( rst, float(width) / float(height) );
+        adjust_aspect( rst, float(screen_width) / float(screen_height) );
 
         // --------------------------------------------------------------
         // Calculate the MVP such that it covers the extended coordinate system.

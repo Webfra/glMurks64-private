@@ -15,7 +15,6 @@ public:
     void init( GLfloat x, GLfloat y, GLfloat w, GLfloat h );
     void render();
     void resize_screen(int width, int height);
-
     void SetMVP( const glm::mat4 &MVP)
     {
         glUseProgram(shader);
@@ -23,8 +22,8 @@ public:
     }
 
     Texture tex;
-private:
     Shader shader;
+private:
     GLint loc_TEX { -1 };
     GLint loc_MVP { -1 };
     GLuint vertex_array_id { 0 };
