@@ -2,25 +2,18 @@
 #define TEXT_SCREEN_H
 
 #include "texture.h"
+#include "gfx_utils.h"
 #include "utils.h"
-//#include "linmath.h"
-#include <glm/glm.hpp>
 
 //======================================================================
 namespace gfx {
-
-#if 0
-#define COLS (384/8)
-#define ROWS (272/8)
-#define MAX_CHARS ( COLS * ROWS )
-#endif
 
 //======================================================================
 class text_screen
 {
 public:
     //======================================================================
-    void init( utils::Buffer &CG, int rows, int cols, const vec2 &pos );
+    void init( utils::Buffer &CG, int rows, int cols, const glm::vec2 &pos );
     void render();
     void resize_screen(int width, int height);
     void set_memories( uint8_t *new_chars, uint8_t *new_colrs );

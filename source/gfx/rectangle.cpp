@@ -1,7 +1,6 @@
 
 #include "rectangle.h"
 #include "gfx_utils.h"
-//#include "linmath.h"
 #include <glad/glad.h>
 
 //========================================================================
@@ -122,8 +121,7 @@ void Rectangle::render()
 void Rectangle::resize_screen(int width, int height)
 {
     //------------------------------------------------------------------
-    mat4x4 MVP;
-    mat4x4_ortho( MVP, 0, width, height, 0, 1, -1 );
+    auto MVP { glm::ortho<float>( 0, width, height, 0, 1, -1 ) };
     //------------------------------------------------------------------
     glUseProgram( program_id );
     glUniformMatrix4fv( loc_MVP, 1, false, &MVP[0][0]);

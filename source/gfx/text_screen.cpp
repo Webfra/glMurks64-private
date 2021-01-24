@@ -3,9 +3,6 @@
 #include "texture.h"
 #include "gfx_utils.h"
 #include "utils.h"
-
-//#include "linmath.h"
-#include <glm/glm.hpp>
 #include <glad/glad.h>
 #include <iostream>
 
@@ -143,7 +140,7 @@ void main()
 
 //========================================================================
 // Setup the text screen objects;
-void text_screen::init( utils::Buffer &CG, int cols, int rows, const vec2 &pos )
+void text_screen::init( utils::Buffer &CG, int cols, int rows, const glm::vec2 &pos )
 {
     m_Rows = rows;
     m_Cols = cols;
@@ -151,7 +148,7 @@ void text_screen::init( utils::Buffer &CG, int cols, int rows, const vec2 &pos )
 
     //------------------------------------------------------------------
     // Create a buffer holding the screen coordinates (0-39,0-24) of each character.
-    vec3   coords[max_chars]; 
+    glm::vec3 coords[max_chars]; 
     for( int i=0; i<max_chars; i++ )
     {
         coords[i][0]   = float(i % cols);
@@ -234,7 +231,7 @@ void text_screen::init( utils::Buffer &CG, int cols, int rows, const vec2 &pos )
     //------------------------------------------------------------------
     // Enable shader input "vPos" and describe its layout in the vertex buffer.
     glEnableVertexAttribArray(loc_coord);
-    glVertexAttribPointer( loc_coord, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), 0 );
+    glVertexAttribPointer( loc_coord, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0 );
     //------------------------------------------------------------------
     // Upload the vertices to the vertex buffer.
     glBufferData( GL_ARRAY_BUFFER, sizeof(coords), &coords[0], GL_DYNAMIC_DRAW );
@@ -294,8 +291,7 @@ void text_screen::set_bg_color( int bg_color )
 void text_screen::resize_screen(int width, int height)
 {
     //------------------------------------------------------------------
-    mat4x4 MVP;
-    mat4x4_ortho( MVP, 0, width, height, 0, 1, -1 );
+    auto MVP { glm::ortho<float>( 0, width, height, 0, 1, -1 ) };
     //------------------------------------------------------------------
     glUseProgram( program_id );
     glUniformMatrix4fv( loc_MVP, 1, false, &MVP[0][0]);

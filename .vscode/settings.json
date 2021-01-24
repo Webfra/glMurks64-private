@@ -5,6 +5,12 @@
         "chrono": "cpp",
         "*.tcc": "cpp",
         "stdexcept": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "unordered_map": "cpp",
+        "fstream": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "numeric": "cpp"
     }
 }

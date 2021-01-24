@@ -44,10 +44,10 @@ void Graphics::init()
     auto chargen { utils::RM.load("roms/chargen") };
 
     // Initialize the text screen.
-    screen.init( chargen, cols, rows, vec2 { 32, 36 } );
+    screen.init( chargen, cols, rows, glm::vec2 { 32, 36 } );
 
     // Initialize the overlay.
-    overlay.init( chargen, 48, 33, vec2 { 0, 4 } );
+    overlay.init( chargen, 48, 33, glm::vec2 { 0, 4 } );
 
     uint8_t chars[max_chars*2];    // A buffer representing the text screen.
     uint8_t colrs[max_chars*2];    // A buffer representing the color memory.    
@@ -56,9 +56,14 @@ void Graphics::init()
     // Clear the buffers.
     for( int i=0; i<max_chars*2; i++ )
     {
-        chars[i]=32; // Space character
-        colrs[i]=0; // light blue color
+        chars[i]=i; // Space character
+        colrs[i]=6; // light blue color
     }
+
+#if 1
+    screen.set_bg_color( 14 );
+    overlay.set_bg_color( 14 );
+#endif
 
     screen.set_memories ( chars, colrs );
     overlay.set_memories( chars, colrs );
