@@ -42,6 +42,7 @@ public:
     }
     //========================================================================
     operator char*() const { return buffer; }
+    operator uint8_t*() const { return (uint8_t*)buffer; }
     char* data() const { return buffer; }
     size_t size() const { return _size; }
     char & operator[] (size_t index) const { return buffer[index]; }

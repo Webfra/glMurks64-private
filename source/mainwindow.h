@@ -2,14 +2,15 @@
 #define MAINWINDOW_H
 //======================================================================
 #include "graphics.h"
+#include "c64.h"
 //======================================================================
 #include <SDL2/SDL.h>
 #include <glad/glad.h>
 //======================================================================
 // Note: A SCALING of 8 means characters are 8x8 pixels in size.
 #define SCALING (8)
-#define SCREEN_WIDTH  (384*2)
-#define SCREEN_HEIGHT (272*2)
+#define SCREEN_WIDTH  (384*4)
+#define SCREEN_HEIGHT (272*4)
 //======================================================================
 class MainWindow
 {
@@ -24,6 +25,8 @@ public:
     }
 
 private:
+    C64 c64;
+
     SDL_Window *pWin;
     SDL_GLContext gl_context;
     bool run { true };

@@ -19,13 +19,14 @@ public:
     void init();
     void render();
     void resize_screen(int width, int height);
-
-private:
-    int m_Width, m_Height;
+    void update( uint8_t*screen, uint8_t*color, uint8_t*chargen);
 
     text_screen screen;
     text_screen border;
     Framebuffer frame;
+
+private:
+    int m_Width, m_Height;
 };
 
 //========================================================================

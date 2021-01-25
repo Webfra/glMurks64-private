@@ -166,7 +166,7 @@ void text_screen::init( utils::Buffer &CG, int cols, int rows, const glm::vec2 &
     // Set up the texture to hold the character generator ROM.
     //auto CG { utils::RM.load("roms/chargen") };
     chrgen.gen().activate(2).bind(GL_TEXTURE_2D).size(8,512)
-        .iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE).TexImage2D( CG.data() )
+        .iformat(GL_R8UI).format(GL_RED_INTEGER).type(GL_UNSIGNED_BYTE).TexImage2D( nullptr /*CG.data()*/ )
         .Pi(GL_TEXTURE_WRAP_S, GL_CLAMP).Pi(GL_TEXTURE_WRAP_T, GL_CLAMP)
         .Pi(GL_TEXTURE_MIN_FILTER, GL_NEAREST).Pi(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
         .unbind();
@@ -255,10 +255,14 @@ void text_screen::render()
 }
 
 //======================================================================
-void text_screen::set_memories( uint8_t *new_chars, uint8_t *new_colrs )
+void text_screen::set_memories( void *new_chars, void *new_colrs, void *chargen )
 {
-    screen.bind().TexImage2D( new_chars );
-    colram.bind().TexImage2D( new_colrs );
+    if( new_chars )
+        screen.bind().TexImage2D( new_chars );
+    if( new_colrs )
+        colram.bind().TexImage2D( new_colrs );
+    if( chargen )
+        chrgen.bind().TexImage2D( chargen );
 }
 
 //======================================================================

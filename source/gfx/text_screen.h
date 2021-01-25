@@ -19,7 +19,7 @@ public:
     virtual ~text_screen() = default;
     //======================================================================
     void init( utils::Buffer &CG, int rows, int cols, const glm::vec2 &pos );
-    void set_memories( uint8_t *new_chars, uint8_t *new_colrs );
+    void set_memories( void *new_chars, void *new_colrs, void *chargen );
     void set_bg_color( int bg_color );
     void render();
     void resize_screen( int width, int height );

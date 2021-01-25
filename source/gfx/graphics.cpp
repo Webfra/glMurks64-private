@@ -59,13 +59,13 @@ void Graphics::init()
     uint8_t colrs[max_chars*2];    // A buffer representing the color memory.    
     for( int i=0; i<max_chars*2; i++ )
     {
-        chars[i]=i; // 32 = Space character
-        colrs[i]=14; // 14 = light blue color
+        chars[i]=32; // 32 = Space character
+        colrs[i]=0; // 14 = light blue color
     }
-    border.set_bg_color( 14 );
-    screen.set_bg_color( 6 );
-    border.set_memories( chars, colrs );
-    screen.set_memories ( chars, colrs );
+    border.set_bg_color( 0 );
+    screen.set_bg_color( 0 );
+    border.set_memories( chars, colrs, chargen.data() );
+    screen.set_memories( chars, colrs, chargen.data() );
 #endif
 }
 
@@ -112,6 +112,13 @@ void Graphics::resize_screen(int width, int height)
     frame.resize_screen   ( m_Width, m_Height );
     //------------------------------------------------------------------
 }
+
+void Graphics::update( uint8_t*screen, uint8_t*color, uint8_t*chargen)
+{
+    //border.set_memories( chars, colrs, chargen.data() );
+    this->screen.set_memories ( screen, color, chargen );
+}
+
 
 //========================================================================
 } // End of namespace gfx.

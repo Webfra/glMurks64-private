@@ -66,7 +66,14 @@ MainWindow::MainWindow()
     int width, height;
     SDL_GetWindowSize(pWin, &width, &height);
     graphics.resize_screen(width, height);
+
     //------------------------------------------------------------------
+    // Load the character generator ROM.
+    auto basic   { utils::RM.load("roms/basic") };
+    auto kernal  { utils::RM.load("roms/kernal") };
+    auto chargen { utils::RM.load("roms/chargen") };
+    //------------------------------------------------------------------
+    c64.init( basic, kernal, chargen );
 }
 
 //======================================================================
@@ -88,9 +95,29 @@ void MainWindow::loop()
             on_event( event );
         }
         //------------------------------------------------------------------
+        for( int i=30000; i>0; i--)
+            c64.loop();
+        if( ( c64.RAM[0xDC0E] & 1) == 1 )
+        {
+           // irq6502(&c64.cpu);
+        }
+
+        //------------------------------------------------------------------
+        // Make the screen black to visualize the reset.
+        //io_area.memory[0x020] = 0;  // Border color
+        //io_area.memory[0x021] = 0;  // Background color
+
+        graphics.border.set_bg_color( c64.RAM[0xD020] );
+        graphics.screen.set_bg_color( c64.RAM[0xD021] );
+
+        //std::cout << std::hex << c64.cpu.pc << " " << (int)mem_read(&c64.cpu, 0xA000 ) << std::endl;
+        //------------------------------------------------------------------
         int w, h;
         SDL_GetWindowSize( pWin, &w, &h );
-        graphics.resize_screen(w,h); //event.window.data1, event.window.data2 );
+        graphics.resize_screen(w,h);
+        graphics.update( &c64.RAM[0x400], 
+                         &c64.RAM[0xD800], 
+                         &c64.ROM[0xD000] );
         //------------------------------------------------------------------
         // TODO: Render here
         glClear( GL_COLOR_BUFFER_BIT );

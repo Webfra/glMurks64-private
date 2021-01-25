@@ -65,6 +65,12 @@ add_subdirectory( glm/glm )
 target_link_libraries( ${target} PRIVATE glm )
 
 #========================================================================
+add_subdirectory( c64 )
+target_link_libraries( ${target} PRIVATE c64 )
+add_subdirectory( fake6502 )
+target_link_libraries( ${target} PRIVATE fake6502 )
+
+#========================================================================
 # End of file.
 #========================================================================
 
