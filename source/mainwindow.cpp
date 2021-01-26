@@ -95,22 +95,16 @@ void MainWindow::loop()
             on_event( event );
         }
         //------------------------------------------------------------------
-        for( int i=30000; i>0; i--)
+        for( int i=100000; i>0; i--)
             c64.loop();
         if( ( c64.RAM[0xDC0E] & 1) == 1 )
         {
-           // irq6502(&c64.cpu);
+            irq6502(&c64.cpu);
         }
-
         //------------------------------------------------------------------
-        // Make the screen black to visualize the reset.
-        //io_area.memory[0x020] = 0;  // Border color
-        //io_area.memory[0x021] = 0;  // Background color
-
+        // Update border and background colors
         graphics.border.set_bg_color( c64.RAM[0xD020] );
         graphics.screen.set_bg_color( c64.RAM[0xD021] );
-
-        //std::cout << std::hex << c64.cpu.pc << " " << (int)mem_read(&c64.cpu, 0xA000 ) << std::endl;
         //------------------------------------------------------------------
         int w, h;
         SDL_GetWindowSize( pWin, &w, &h );
@@ -170,11 +164,33 @@ bool MainWindow::on_keydown( SDL_Event & event )
     switch( event.key.keysym.sym )
     {
     case SDLK_ESCAPE:
-        close();
+        esc_is_down = true;
+        //close();
         break;
     case SDLK_RETURN:
         if( (event.key.keysym.mod & KMOD_ALT) )
             toggle_fullscreen();
+        break;
+    case SDLK_F12:
+        if( esc_is_down )
+        {
+            c64.reset = true;
+        }
+        break;
+    case SDLK_F11:
+        c64.enable_debug_logs = !c64.enable_debug_logs;
+        break;
+    }
+    return false;
+}
+
+//======================================================================
+bool MainWindow::on_keyup( SDL_Event & event )
+{
+    switch( event.key.keysym.sym )
+    {
+    case SDLK_ESCAPE:
+        esc_is_down = false;
         break;
     }
     return false;

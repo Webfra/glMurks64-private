@@ -32,10 +32,12 @@ private:
     bool run { true };
 
     gfx::Graphics graphics;
+    bool esc_is_down { false };
 
     void load_open_gl(GLADloadproc proc_address);
     bool on_event( SDL_Event &event );
     bool on_keydown( SDL_Event & event );
+    bool on_keyup( SDL_Event & event );
     void toggle_fullscreen();
     bool on_window_event( SDL_Event & event);
 };
