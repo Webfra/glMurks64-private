@@ -95,7 +95,7 @@ void MainWindow::loop()
             on_event( event );
         }
         //------------------------------------------------------------------
-        for( int i=100000; i>0; i--)
+        for( int i=10000; i>0; i--)
             c64.loop();
         if( ( c64.RAM[0xDC0E] & 1) == 1 )
         {

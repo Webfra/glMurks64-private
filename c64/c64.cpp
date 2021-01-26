@@ -27,7 +27,6 @@ void C64::loop()
     {
         if(reset)
         {
-            old_clock = 0;
             cpu.clockticks = 0;
             memset(&RAM[0], 0x00, 0x10000);
             reset6502(&cpu);

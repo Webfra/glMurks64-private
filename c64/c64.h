@@ -22,14 +22,12 @@ typedef struct _c64_t {
 
     context_t cpu;
 
-    bool enable_debug_logs { false };
-
     uint8_t RAM[0x10000];
     uint8_t ROM[0x10000];
 
     bool quit = false;
     bool reset = true;
-    int old_clock = 0;
+    bool enable_debug_logs { false };
 
     void init( uint8_t * basic, uint8_t *kernal, uint8_t *chargen);
     void loop();
