@@ -12,11 +12,6 @@ namespace gfx {
 class text_screen
 {
 public:
-    //========================================================================
-    text_screen() = default;
-    NO_COPY( text_screen );
-    NO_MOVE( text_screen );
-    virtual ~text_screen() = default;
     //======================================================================
     void init( utils::Buffer &CG, int rows, int cols, const glm::vec2 &pos );
     void set_memories( void *new_chars, void *new_colrs, void *chargen );

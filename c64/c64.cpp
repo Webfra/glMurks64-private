@@ -6,9 +6,6 @@
 #include <sstream>
 
 //========================================================================
-//C64 c64;
-
-//========================================================================
 void C64::init( uint8_t * basic, uint8_t *kernal, uint8_t *chargen)
 {
     memset(&RAM[0], 0x00, 0x10000);
@@ -22,25 +19,117 @@ void C64::init( uint8_t * basic, uint8_t *kernal, uint8_t *chargen)
 //========================================================================
 void C64::loop()
 {
-    //cpu.clockticks = 0;
-    //while(!quit)
+    if(reset)
     {
-        if(reset)
+        clockticks = 0;
+        memset(&RAM[0], 0x00, 0x10000);
+        reset6502(this);
+        reset = false;
+    }
+    if( enable_debug_logs )
+        std::cout << "X " << bin2hex4(pc) << std::endl;
+    step(this);
+    // Simulate VIC-II rasterline register
+    if( 0==(clockticks & 63) )
+    {
+        RAM[0xD012]++;
+    }
+}
+
+//==================================================================
+// Run the C64 - executed in separate thread!
+void C64::run()
+{
+    //------------------------------------------------------------
+    auto irq_clock = std::chrono::high_resolution_clock::now();
+    //------------------------------------------------------------
+    while(!quit)
+    {
+        if(!paused)
         {
-            cpu.clockticks = 0;
-            memset(&RAM[0], 0x00, 0x10000);
-            reset6502(&cpu);
-            reset = false;
+            //------------------------------------------------------------
+            loop();
+            //------------------------------------------------------------
+            // Generate timer interrupt roughly 60 times per second.
+            auto now = std::chrono::high_resolution_clock::now();
+            auto delta = (now - irq_clock);
+            auto micro = std::chrono::duration_cast<std::chrono::microseconds>(delta);
+            if( micro.count() >= 16666 ) // 16.666ms = 60 fps
+            {
+                irq_clock = now;
+                if( ( RAM[0xDC0E] & 1) == 1 )
+                {
+                    irq6502(this);
+                }
+            }
+            //------------------------------------------------------------
         }
-        if( enable_debug_logs )
-            std::cout << "X " << bin2hex4(cpu.pc) << std::endl;
-        step(&cpu);
-        // Simulate VIC-II rasterline register
-        if( 0==(cpu.clockticks & 63) )
+        else // prevent Timer IRQs from being generated when paused.
         {
-           RAM[0xD012]++;
+            irq_clock = std::chrono::high_resolution_clock::now();
         }
     }
+}
+
+//==================================================================
+void C64::stop()
+{
+    quit=true;
+    runner.join();
+}
+
+//==================================================================
+void C64::set_key_state(const Key & key, bool state) noexcept
+{
+    //------------------------------------------------------------------
+    uint8_t & row = key_matrix[ key.row ];
+    //------------------------------------------------------------------
+    uint8_t mask = uint8_t(1 << key.col);
+    //------------------------------------------------------------------
+    if( state ) row &= ~mask;
+    else        row |= mask;
+    //------------------------------------------------------------------
+}
+//==================================================================
+bool C64::get_key_state(const Key & key) const noexcept
+{
+    //------------------------------------------------------------------
+    const uint8_t & row = key_matrix[ key.row ];
+    //------------------------------------------------------------------
+    uint8_t mask = uint8_t(1 << key.col);
+    //------------------------------------------------------------------
+    // Check if Esc is currently pressed.
+    return (row & mask) == 0;
+}
+
+//==================================================================
+uint8_t handle_key_matrix( C64 *p64 ) noexcept
+{
+    //------------------------------------------------------------------
+    // Keys are active low in they matrix, start with all bits set.
+    uint8_t result = 0xFF;
+    //------------------------------------------------------------------
+    // Go through all rows.
+    for(int i=0; i<8; i++)
+    {
+        //------------------------------------------------------------------
+        // If a row is selected by a cleared bit in $DC00, then
+        if( 0 == (p64->RAM[0xDC00] & (1<<i)) )
+        {
+            //------------------------------------------------------------------
+            // "OR" ("NAND") it to the result bits.
+            result &= p64->key_matrix[i];
+        }
+    }
+    //------------------------------------------------------------------
+    // Write result to RAM. This is just for debugging.
+    // (Any read of $DC01 would go trough this function again.)
+    // But this way, $DC01 content can be seen in memory.
+    p64->RAM[0xDC01] = result;
+    //------------------------------------------------------------------
+    // Overwrite the default result and return the currently active keyboard bits.
+    return result;
+    //------------------------------------------------------------------
 }
 
 //========================================================================
@@ -58,7 +147,13 @@ uint8_t mem_read(context_t *cpu, uint16_t address)
     C64 *p64 = (C64*)cpu;
 
     uint8_t value;
-    if( (address>=0xA000) && (address<=0xBFFF) )
+
+    // Read from CIA1 port B: Read keyboard matrix.
+    if( address == 0xDC01 )
+    {
+        return handle_key_matrix(p64);
+    }
+    else if( (address>=0xA000) && (address<=0xBFFF) )
     {
         value = p64->ROM[address];
     }

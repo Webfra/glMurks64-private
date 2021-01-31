@@ -73,6 +73,9 @@ void Graphics::init()
 void Graphics::render()
 {
     //------------------------------------------------------------------
+    glClearColor( 0,0,0, 0.0f);
+    glClear( GL_COLOR_BUFFER_BIT );
+    //------------------------------------------------------------------
     // RENDERING TO THE FRAMEBUFFER
     //------------------------------------------------------------------
     // Set up the framebuffer for rendering INTO it.
@@ -91,9 +94,6 @@ void Graphics::render()
     // Deactivate the framebuffer to enable rendering to the screen.
     frame.deactivate();
     glViewport(0,0, m_Width, m_Height);
-    //------------------------------------------------------------------
-    //glClearColor( 0,0,0, 0.0f);
-    //glClear(GL_COLOR_BUFFER_BIT);
     //------------------------------------------------------------------
     // Render the framebuffer to the screen.
     frame.render(); // Render the frame buffer on the screen.

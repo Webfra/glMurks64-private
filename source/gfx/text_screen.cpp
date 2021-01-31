@@ -11,10 +11,7 @@ namespace gfx {
 //========================================================================
 // A vertex shader for the text screen.
 static const char *vxs =
-//#include "text_screen_shaders.vs"
-
-R"(
-#version 460 core
+R"(#version 460 core
 
 uniform isampler2D CHARS;   // Screen characters: 1000 bytes
 uniform isampler2D COLOR;   // Screen color ram: 1000 nibbles
@@ -36,16 +33,12 @@ void main()                 // Shader: Calculate screen coordinates of the
     character_vs = (texelFetch(CHARS, coord, 0 ).r) & 0xFF;
     fg_col_vs    = (texelFetch(COLOR, coord, 0 ).r) & 0x0F;
 }
+)";
 
-)"
-
-;
-
+//========================================================================
+// Geometry shader for text_screen.
 static const char *gms =
-// #include "text_screen_shaders.gs"
-
-R"(
-#version 460 core
+R"(#version 460 core
 
 uniform mat4 MVP;           // Model-View-Projection Matrix (Camera)
 uniform float scaling;
@@ -94,19 +87,16 @@ void main()
     EndPrimitive();
 };
 
-)"
+)";
 
-;
-
+//========================================================================
+// Fragment shader for text sdreen.
 static const char *fts =
-// #include "text_screen_shaders.fs"
-
-R"(
-#version 460 core
+R"(#version 460 core
 
 uniform isampler2D TEX;        // character generator ROM.
 uniform int background_color;  // global screen background color.
-uniform ivec3 palette[16];      // The 16 colors.
+uniform ivec3 palette[16];     // The 16 colors.
 uniform int charset;           // Selects which character set to use (0 or 1)
 
 in vec2 texcoord;           // The interpolated texture coordinate.
@@ -133,10 +123,7 @@ void main()
    FragColor = mix( bg_col, fg_col, f);
 
 };
-
-)"
-
-;
+)"; // End of Fragment Shader
 
 //========================================================================
 // Setup the text screen objects;
